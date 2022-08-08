@@ -1,0 +1,13 @@
+---
+roles:
+  - name: docker-rootless
+    src: https://github.com/konstruktoid/ansible-docker-rootless.git
+    scm: git
+
+  - name: docker
+    src: https://github.com/geerlingguy/ansible-role-docker.git
+    scm: git
+
+  - name: code-server
+    src: https://github.com/digitalspacestdio/ansible-role-code-server.git
+    scm: git

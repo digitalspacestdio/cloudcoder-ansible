@@ -1,0 +1,45 @@
+[global]
+  checkNewVersion = true
+  sendAnonymousUsage = true
+[entryPoints]
+  [entryPoints.web]
+    address = "{{ public_ip }}:80"
+  [entryPoints.web.http.redirections.entryPoint]
+    to = "websecure"
+    scheme = "https"
+    permanent = true
+  [entryPoints.websecure]
+    address = "{{ public_ip }}:443"
+[certificatesResolvers.default.acme]
+  email = "{{ traefik_acme_email }}"
+  storage = "/etc/traefik/acme/{{ traefik_hostname }}.json"
+
+{% if traefik_acme_provider is defined and traefik_acme_provider == "http" %}
+  [certificatesResolvers.default.acme.httpChallenge]
+    entryPoint = "web"
+{% endif %}
+
+{% if traefik_acme_provider is defined and traefik_acme_provider != "http" %}
+  [certificatesResolvers.default.acme.dnsChallenge]
+    provider = "{{ traefik_acme_provider }}"
+    delayBeforeCheck = 0
+{% endif %}
+
+{% if traefik_pilot_token is defined and traefik_pilot_token != "" %}
+[pilot]
+    token = "{{ traefik_pilot_token }}"
+{% endif %}
+[log]
+  level = "{{ traefik_log_level }}"
+  filePath = "/var/log/traefik/traefik.log"
+[accessLog]
+  filePath = "/var/log/traefik/access.log"
+#[api]
+#  dashboard = true
+#  insecure = true
+[ping]
+[serversTransport]
+  insecureSkipVerify = true
+[providers.file]
+  directory = "/etc/traefik/conf.d/"
+  watch = true

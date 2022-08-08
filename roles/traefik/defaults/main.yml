@@ -1,0 +1,5 @@
+---
+traefik_username: "traefik"
+traefik_groupname: "traefik"
+traefik_error_log_path: /var/log/traefik/traefik.log
+traefik_access_log_path: /var/log/traefik/access.log

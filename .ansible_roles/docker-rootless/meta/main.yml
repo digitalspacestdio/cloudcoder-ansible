@@ -1,0 +1,26 @@
+---
+galaxy_info:
+  author: konstruktoid
+  role_name: docker_rootless
+  description: Docker daemon installation, with rootless support
+  license: apache
+  min_ansible_version: "2.10"
+  platforms:
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+    - name: EL
+      versions:
+        - "8"
+    - name: Ubuntu
+      versions:
+        - focal
+  galaxy_tags:
+    - almalinux
+    - centos
+    - debian
+    - docker
+    - rootless
+    - security
+    - ubuntu

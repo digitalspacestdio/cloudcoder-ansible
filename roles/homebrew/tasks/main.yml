@@ -1,0 +1,35 @@
+---
+- name: Check if homebrew directory exists
+  stat:
+    path: "/home/linuxbrew"
+  register: stat_home_linuxbrew
+
+- name: create homebrew directory
+  become: true
+  file:
+    path: "/home/linuxbrew"
+    state: directory
+    owner: "{{ developer_username }}"
+    mode: 0700
+  when: not stat_home_linuxbrew.stat.exists
+
+- name: install homebrew
+  shell: |
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  become: true
+  become_user: "{{ developer_username }}"
+  when: not stat_home_linuxbrew.stat.exists
+
+- name: Configure profile
+  become: true
+  lineinfile:
+    create: yes
+    dest: '/home/{{ developer_username }}/.profile'
+    line: 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+
+- name: Configure profile
+  become: true
+  lineinfile:
+    create: yes
+    dest: '/home/{{ developer_username }}/.zprofile'
+    line: 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'

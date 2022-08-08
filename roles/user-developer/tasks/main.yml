@@ -1,0 +1,45 @@
+---
+- shell: "getent passwd '{{ developer_uid }}' | cut -d: -f1"
+  register: unix_user_developer
+
+- name: Set developer_username to exist user
+  set_fact:
+    developer_username: "{{ unix_user_developer.stdout }}"
+  when: unix_user_developer.stdout != ""
+
+- name: Add the user '{{ developer_username }}' with the {{ developer_uid }} uid and a primary group of 'developer'
+  user:
+    comment: John Developer
+    name: "{{ developer_username }}"
+    uid: "{{ developer_uid }}"
+    groups: []
+    shell: /bin/bash
+  when: unix_user_developer.stdout == ""
+
+- name: Change user password
+  user:
+    name: '{{ developer_username }}'
+    update_password: always
+    password: "{{ developer_password | password_hash('sha512') }}"
+
+- name: Dissalow root password login via ssh
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^.*PermitRootLogin.*$'
+    replace: 'PermitRootLogin no'
+
+- name: 'Set ClientAliveInterval to 3600'
+  lineinfile:
+    path: '/etc/ssh/sshd_config'
+    line: 'ClientAliveInterval 3600'
+
+- name: Restarting sshd
+  set_fact:
+    service_restarted: "{{ service_restarted + [ 'sshd' ] }}"
+
+- name: Installing git-ssh
+  copy:
+    src: files/bin/git-ssh
+    dest: /usr/local/bin/git-ssh
+    owner: root
+    mode: u=rwx,g=rx,o=rx

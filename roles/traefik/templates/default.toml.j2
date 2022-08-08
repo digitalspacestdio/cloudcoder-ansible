@@ -1,0 +1,24 @@
+[http.routers]
+    [http.routers.default]
+    rule = "HostRegexp(`{{ traefik_hostname }}`, `{subdomain:[a-z0-9-_]+}.{{ traefik_hostname }}`)"
+    service = "default"
+    entryPoints = ["websecure"]
+
+    [http.routers.default.tls]
+    certResolver = "default"
+    
+    [[http.routers.default.tls.domains]]
+    main = "*.{{ traefik_hostname }}"
+    sans = "{{ traefik_hostname }}"
+
+[http.middlewares]
+    [http.middlewares.default.rateLimit]
+      average = 100
+      burst = 200
+      period = "5s"
+
+[http.services]
+  [http.services.default]
+    [http.services.default.loadBalancer]
+      [[http.services.default.loadBalancer.servers]]
+        url = "http://127.0.0.1:7999"

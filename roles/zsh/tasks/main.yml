@@ -1,0 +1,98 @@
+---
+- name: Installing Zsh and git
+  apt: pkg=zsh,git state=present
+  register: installation
+  become: true
+
+- name: Check if .zshrc exists
+  stat:
+    path: ~/.zshrc
+  register: stat_rc_result
+
+- name: Check if .oh-my-zsh exists
+  stat:
+    path: ~/.oh-my-zsh
+  register: stat_oh_my_zsh_result
+
+- name: Cloning oh-my-zsh
+  git:
+    repo: https://github.com/robbyrussell/oh-my-zsh
+    dest: ~/.oh-my-zsh
+  when: not stat_oh_my_zsh_result.stat.exists
+
+- name: Creating new ~/.zshrc
+  copy:
+    src: ~/.oh-my-zsh/templates/zshrc.zsh-template
+    dest: ~/.zshrc
+    remote_src: true
+  when: not stat_rc_result.stat.exists
+
+- name: "Configure theme"
+  shell: echo $(hostname -f) > ~/.box-name
+  args:
+    executable: /bin/bash
+
+- name: "Configure theme"
+  lineinfile:
+    dest: ~/.zshrc
+    state: present
+    regexp: '^ZSH_THEME='
+    line: 'ZSH_THEME="fino-time"'
+
+- name: Check if /home/{{ developer_username }}/.zshrc exists
+  stat:
+    path: /home/{{ developer_username }}/.zshrc
+  register: stat_rc_result
+  become: yes
+  become_user: "{{ developer_username }}"
+  when: developer_username is defined
+
+- name: Check if .oh-my-zsh exists
+  stat:
+    path: /home/{{ developer_username }}/.oh-my-zsh
+  register: stat_oh_my_zsh_result
+  become: yes
+  become_user: "{{ developer_username }}"
+  when: developer_username is defined
+
+- name: Cloning oh-my-zsh
+  git:
+    repo: https://github.com/robbyrussell/oh-my-zsh
+    dest: /home/{{ developer_username }}/.oh-my-zsh
+  when: not stat_oh_my_zsh_result.stat.exists and developer_username is defined
+  become: yes
+  become_user: "{{ developer_username }}"
+
+- name: Creating new /home/{{ developer_username }}/.zshrc
+  copy:
+    src: /home/{{ developer_username }}/.oh-my-zsh/templates/zshrc.zsh-template
+    dest: /home/{{ developer_username }}/.zshrc
+    remote_src: true
+  when: not stat_rc_result.stat.exists and developer_username is defined
+  become: yes
+  become_user: "{{ developer_username }}"
+
+- name: "Configure theme {{ developer_username }}"
+  shell: echo $(hostname -f) > /home/{{ developer_username }}/.box-name
+  args:
+    executable: /bin/bash
+  become: yes
+  become_user: "{{ developer_username }}"
+  when: developer_username is defined
+
+- name: "Configure theme for {{ developer_username }}"
+  lineinfile:
+    dest: /home/{{ developer_username }}/.zshrc
+    state: present
+    regexp: '^ZSH_THEME='
+    line: 'ZSH_THEME="fino-time"'
+  become: yes
+  become_user: "{{ developer_username }}"
+  when: developer_username is defined
+
+- name: "Changing default shell to zsh "
+  shell: 'chsh -s $(which zsh)'
+
+- name: "Changing default shell to zsh for {{ developer_username }}"
+  shell: 'chsh -s $(which zsh) {{ developer_username }}'
+  when: developer_username is defined

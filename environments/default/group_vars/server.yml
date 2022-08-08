@@ -1,0 +1,14 @@
+developer_username: "{{ lookup('env', 'USER_DEVELOPER_USERNAME') | default('developer', True) }}"
+developer_uid: "{{ lookup('env', 'USER_DEVELOPER_UID') | default('1000', True) }}"
+developer_password: "{{ lookup('env', 'USER_DEVELOPER_PASSWORD') | default('', True) }}"
+developer_github_accounts: []
+developer_authorized_keys: []
+traefik_hostname: "{{ lookup('env', 'TRAEFIK_HOSTNAME') | default('example.com', True) }}"
+traefik_acme_provider: "{{ lookup('env', 'TRAEFIK_ACME_PROVIDER') | default('cloudflare', True) }}"
+traefik_acme_email: "{{ lookup('env', 'TRAEFIK_ACME_EMAIL') | default('adm@example.com', True) }}"
+traefik_acme_token: "{{ lookup('env', 'TRAEFIK_ACME_TOKEN') }}"
+traefik_pilot_token: "{{ lookup('env', 'TRAEFIK_PILOT_TOKEN')  }}"
+traefik_log_level: "{{ lookup('env', 'TRAEFIK_LOG_LEVEL') | default('ERROR', True) }}"
+vscode_bind_address: "{{ lookup('env', 'VSCODE_BIND_ADDRESS') | default('127.0.0.1', True) }}"
+vscode_bind_port: "{{ lookup('env', 'VSCODE_BIND_PORT') | default('7999', True) }}"
+vscode_password: "{{ lookup('env', 'VSCODE_POSSWORD') | default('$ecretPassw0rd', True) }}"

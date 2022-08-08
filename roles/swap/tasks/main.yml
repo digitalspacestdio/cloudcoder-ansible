@@ -1,0 +1,41 @@
+---
+- name: Check swap size
+  shell: swapon -s | head -2 | tail -1 | awk '{print $3}'
+  register: swapsize
+
+- stat:
+    path: /swapfile
+  register: swapfile
+
+- name: Create swapfile
+  shell: sudo fallocate -l 2G /swapfile
+  when: swapsize.stdout|length == 0 and not swapfile.stat.exists
+
+- name: chmod 600 /swapfile
+  shell: chmod 600 /swapfile
+  when: swapsize.stdout|length == 0 and not swapfile.stat.exists
+
+- name: mkswap /swapfile
+  shell: mkswap /swapfile
+  when: swapsize.stdout|length == 0 and not swapfile.stat.exists
+
+- name: swapon /swapfile
+  shell: swapon /swapfile
+  when: swapsize.stdout|length == 0 and not swapfile.stat.exists
+
+- name: Configure fastab
+  lineinfile:
+    dest: '/etc/fstab'
+    line: '/swapfile none swap sw 0 0'
+
+- name: Configure Swap
+  lineinfile:
+    dest: '/etc/sysctl.conf'
+    line: '{{ item }}'
+  with_list:
+    - 'vm.swappiness=80'
+    - 'vm.vfs_cache_pressure=50'
+
+- name: sysctl -p
+  shell: sysctl -p
+

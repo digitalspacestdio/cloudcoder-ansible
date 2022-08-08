@@ -1,0 +1,104 @@
+---
+- hosts: server
+  gather_facts: False
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    - service_disabled: [ ]
+    - service_started: [ ]
+    - service_restarted: [ ]
+  pre_tasks:
+    - name: 'Install python if not installed'
+      raw: "sh -c 'test -e /usr/bin/python3 || (apt -yqq update && apt install -yqq python3)'"
+      args:
+        warn: false
+      tags: 
+        - always
+
+    - name: 'Installing facts.d'
+      copy:
+        src: facts.d
+        dest:  /etc/ansible/
+        owner: root
+        mode: u=rwx,g=rx,o=rx
+      tags: 
+        - always
+
+    - name: Gathering facts
+      setup:
+      tags: 
+        - always
+
+  roles:
+    - name: roles/swap
+      tags: 
+        - system
+    - name: roles/tools
+      tags: 
+        - system
+    - name: roles/user-developer
+      tags: 
+        - user-developer
+    - name: docker
+      docker_user: "{{ developer_username }}"
+      docker_rootful: "yes"
+      docker_rootful_enabled: "yes"
+      tags: 
+        - docker
+    - name: code-server
+      code_server_user: "{{ developer_username }}"
+      code_server_host: "{{ vscode_bind_address }}"
+      code_server_port: "{{ vscode_bind_port }}"
+      code_server_env:
+        VSCODE_FORCE_USER_ENV: "1"
+        PROXY: "{{ traefik_hostname }}"
+        PASSWORD: "{{ vscode_password }}"
+      tags:
+        - code-server
+    - name: roles/traefik
+      tags:
+        - traefik
+    - name: roles/homebrew
+      tags:
+        - homebrew
+    - name: roles/zsh
+      tags: 
+        - always
+
+  post_tasks:
+    - name: Populate service facts
+      service_facts:
+      tags:
+        - always
+
+    - name: "Disabling services"
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      become: yes
+      when: "service_disabled|length > 0 and item in services"
+      with_items: "{{ service_disabled | unique }}"
+      tags:
+        - always
+
+    - name: "Starting services"
+      service:
+        name: "{{ item }}"
+        state: restarted
+      become: yes
+      when: "service_started|length > 0 and item in services"
+      with_items: "{{ service_started | unique }}"
+      tags:
+        - always
+
+    - name: "Restarting services"
+      service:
+        name: "{{ item }}"
+        state: restarted
+      become: yes
+      when: "service_restarted|length > 0 and item in services"
+      with_items: "{{ service_restarted | unique }}"
+      tags:
+        - always
