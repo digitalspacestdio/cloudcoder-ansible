@@ -10,7 +10,7 @@
   become_user: "{{ docker_user }}"
   ansible.builtin.file:
     path: "{{ docker_user_info.home }}/.bashrc"
-    state: file
+    state: touch
     owner: "{{ docker_user }}"
     group: "{{ docker_user }}"
     mode: 0644
@@ -66,7 +66,7 @@
   become_user: "{{ docker_user }}"
   ansible.builtin.file:
     path: "{{ docker_user_info.home }}/.zshrc"
-    state: file
+    state: touch
     owner: "{{ docker_user }}"
     group: "{{ docker_user }}"
     mode: 0644

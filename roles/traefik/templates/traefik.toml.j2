@@ -1,28 +1,43 @@
 [global]
   checkNewVersion = true
   sendAnonymousUsage = true
+
+{% if traefik_acme_provider is not defined or traefik_acme_provider == "" %}
+[entryPoints]
+  [entryPoints.default]
+    address = "{{ public_ip }}:80"
+  [entryPoints.default.forwardedHeaders]
+    trustedIPs = ["0.0.0.0/0"]
+{% endif %}
+
+{% if traefik_acme_provider is defined and traefik_acme_provider != "" %}
 [entryPoints]
   [entryPoints.web]
     address = "{{ public_ip }}:80"
-  [entryPoints.web.http.redirections.entryPoint]
-    to = "websecure"
-    scheme = "https"
-    permanent = true
-  [entryPoints.websecure]
-    address = "{{ public_ip }}:443"
+  
+[entryPoints.web.http.redirections.entryPoint]
+  to = "default"
+  scheme = "https"
+  permanent = true
+[entryPoints.default]
+  address = "{{ public_ip }}:443"
+[entryPoints.default.forwardedHeaders]
+  trustedIPs = ["0.0.0.0/0"]
+
 [certificatesResolvers.default.acme]
   email = "{{ traefik_acme_email }}"
   storage = "/etc/traefik/acme/{{ traefik_hostname }}.json"
-
-{% if traefik_acme_provider is defined and traefik_acme_provider == "http" %}
-  [certificatesResolvers.default.acme.httpChallenge]
-    entryPoint = "web"
 {% endif %}
 
-{% if traefik_acme_provider is defined and traefik_acme_provider != "http" %}
-  [certificatesResolvers.default.acme.dnsChallenge]
-    provider = "{{ traefik_acme_provider }}"
-    delayBeforeCheck = 0
+{% if traefik_acme_provider is defined and traefik_acme_provider != "" and traefik_acme_provider == "http" %}
+[certificatesResolvers.default.acme.httpChallenge]
+  entryPoint = "web"
+{% endif %}
+
+{% if traefik_acme_provider is defined and traefik_acme_provider != "" and traefik_acme_provider != "http" %}
+[certificatesResolvers.default.acme.dnsChallenge]
+  provider = "{{ traefik_acme_provider }}"
+  delayBeforeCheck = 0
 {% endif %}
 
 {% if traefik_pilot_token is defined and traefik_pilot_token != "" %}

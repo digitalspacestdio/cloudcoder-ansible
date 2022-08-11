@@ -1,0 +1,16 @@
+---
+- name: include konstruktoid-docker-rootless
+  include_role:
+    name: konstruktoid-docker-rootless
+
+- name: deploy zsh completion
+  ansible.builtin.include_tasks: zshrc.yml
+  
+- name: install compose plugin
+  shell: |
+    DOCKER_CONFIG=${DOCKER_CONFIG:-{{ docker_user_info.home }}/.docker}
+    mkdir -p $DOCKER_CONFIG/cli-plugins
+    curl -SL https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+    chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+  become: true
+  become_user: "{{ docker_user }}"

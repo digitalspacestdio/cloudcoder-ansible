@@ -11,8 +11,8 @@
   shell: sudo fallocate -l 2G /swapfile
   when: swapsize.stdout|length == 0 and not swapfile.stat.exists
 
-- name: chmod 600 /swapfile
-  shell: chmod 600 /swapfile
+- name: chmod 0600 /swapfile
+  shell: chmod 0600 /swapfile
   when: swapsize.stdout|length == 0 and not swapfile.stat.exists
 
 - name: mkswap /swapfile

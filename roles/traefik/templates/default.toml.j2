@@ -2,14 +2,15 @@
     [http.routers.default]
     rule = "HostRegexp(`{{ traefik_hostname }}`, `{subdomain:[a-z0-9-_]+}.{{ traefik_hostname }}`)"
     service = "default"
-    entryPoints = ["websecure"]
+    entryPoints = ["default"]
 
+{% if traefik_acme_provider is defined and traefik_acme_provider != "" %}
     [http.routers.default.tls]
-    certResolver = "default"
-    
+    certResolver = "default"    
     [[http.routers.default.tls.domains]]
     main = "*.{{ traefik_hostname }}"
     sans = "{{ traefik_hostname }}"
+{% endif %}
 
 [http.middlewares]
     [http.middlewares.default.rateLimit]

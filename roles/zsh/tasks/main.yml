@@ -4,10 +4,10 @@
   register: installation
   become: true
 
-- name: Check if .zshrc exists
-  stat:
-    path: ~/.zshrc
-  register: stat_rc_result
+# - name: Check if .zshrc exists
+#   stat:
+#     path: ~/.zshrc
+#   register: stat_rc_result
 
 - name: Check if .oh-my-zsh exists
   stat:
@@ -25,7 +25,7 @@
     src: ~/.oh-my-zsh/templates/zshrc.zsh-template
     dest: ~/.zshrc
     remote_src: true
-  when: not stat_rc_result.stat.exists
+#  when: not stat_rc_result.stat.exists
 
 - name: "Configure theme"
   shell: echo $(hostname -f) > ~/.box-name
@@ -39,13 +39,13 @@
     regexp: '^ZSH_THEME='
     line: 'ZSH_THEME="fino-time"'
 
-- name: Check if /home/{{ developer_username }}/.zshrc exists
-  stat:
-    path: /home/{{ developer_username }}/.zshrc
-  register: stat_rc_result
-  become: yes
-  become_user: "{{ developer_username }}"
-  when: developer_username is defined
+# - name: Check if /home/{{ developer_username }}/.zshrc exists
+#   stat:
+#     path: /home/{{ developer_username }}/.zshrc
+#   register: stat_rc_result
+#   become: yes
+#   become_user: "{{ developer_username }}"
+#   when: developer_username is defined
 
 - name: Check if .oh-my-zsh exists
   stat:
@@ -68,7 +68,8 @@
     src: /home/{{ developer_username }}/.oh-my-zsh/templates/zshrc.zsh-template
     dest: /home/{{ developer_username }}/.zshrc
     remote_src: true
-  when: not stat_rc_result.stat.exists and developer_username is defined
+  #when: not stat_rc_result.stat.exists and developer_username is defined
+  when: developer_username is defined
   become: yes
   become_user: "{{ developer_username }}"
 
@@ -88,11 +89,4 @@
     line: 'ZSH_THEME="fino-time"'
   become: yes
   become_user: "{{ developer_username }}"
-  when: developer_username is defined
-
-- name: "Changing default shell to zsh "
-  shell: 'chsh -s $(which zsh)'
-
-- name: "Changing default shell to zsh for {{ developer_username }}"
-  shell: 'chsh -s $(which zsh) {{ developer_username }}'
   when: developer_username is defined

@@ -17,10 +17,12 @@ base_packages:
   - mcrypt
   - mysql-client
   - postgresql-client
+  - patch
   - rsync
   - ntp
   - make
   - build-essential
+  - systemtap-sdt-dev
   - procps
   - zip
   - unzip

@@ -1,10 +1,7 @@
 ---
 - hosts: server
   gather_facts: False
-  become: yes
-  become_user: root
-  become_method: sudo
-  vars:
+  vars: 
     - service_disabled: [ ]
     - service_started: [ ]
     - service_restarted: [ ]
@@ -31,40 +28,52 @@
         - always
 
   roles:
-    - name: roles/swap
+    - role: roles/swap
       tags: 
         - system
-    - name: roles/tools
+
+    - role: roles/tools
       tags: 
         - system
-    - name: roles/user-developer
+
+    - role: roles/user-developer
+      tags: 
+        - always
+
+    - role: roles/zsh
       tags: 
         - user-developer
-    - name: docker
+
+    - role: docker
+      tags: 
+        - docker
+
+    - role: docker-rootless
       docker_user: "{{ developer_username }}"
       docker_rootful: "yes"
       docker_rootful_enabled: "yes"
       tags: 
-        - docker
-    - name: code-server
+        - docker-rootless
+
+    - role: code-server
+      code_server_data_dir: "{{ developer_user_info.home }}/.local/share/code-server"
       code_server_user: "{{ developer_username }}"
       code_server_host: "{{ vscode_bind_address }}"
       code_server_port: "{{ vscode_bind_port }}"
+      code_server_password: "{{ vscode_password }}"
+      code_server_proxy_domain: "{{ traefik_hostname }}"
       code_server_env:
         VSCODE_FORCE_USER_ENV: "1"
-        PROXY: "{{ traefik_hostname }}"
-        PASSWORD: "{{ vscode_password }}"
       tags:
         - code-server
-    - name: roles/traefik
+
+    - role: roles/traefik
       tags:
         - traefik
-    - name: roles/homebrew
+
+    - role: roles/homebrew
       tags:
         - homebrew
-    - name: roles/zsh
-      tags: 
-        - always
 
   post_tasks:
     - name: Populate service facts
@@ -77,7 +86,7 @@
         name: "{{ item }}"
         state: stopped
         enabled: no
-      become: yes
+      become: true
       when: "service_disabled|length > 0 and item in services"
       with_items: "{{ service_disabled | unique }}"
       tags:
@@ -87,7 +96,7 @@
       service:
         name: "{{ item }}"
         state: restarted
-      become: yes
+      become: true
       when: "service_started|length > 0 and item in services"
       with_items: "{{ service_started | unique }}"
       tags:
@@ -97,8 +106,19 @@
       service:
         name: "{{ item }}"
         state: restarted
-      become: yes
+      become: true
       when: "service_restarted|length > 0 and item in services"
       with_items: "{{ service_restarted | unique }}"
       tags:
         - always
+
+    - name: "Changing default shell to zsh "
+      shell: 'chsh -s $(which zsh)'
+      become: true
+      become_user: root
+
+    - name: "Changing default shell to zsh for {{ developer_username }}"
+      shell: 'chsh -s $(which zsh) {{ developer_username }}'
+      become: true
+      become_user: "root"
+      when: developer_username is defined

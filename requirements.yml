@@ -1,10 +1,10 @@
 ---
 roles:
-  - name: docker-rootless
+  - name: konstruktoid-docker-rootless
     src: https://github.com/konstruktoid/ansible-docker-rootless.git
     scm: git
 
-  - name: docker
+  - name: geerlingguy-docker
     src: https://github.com/geerlingguy/ansible-role-docker.git
     scm: git
 

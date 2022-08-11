@@ -2,6 +2,11 @@
   [http.routers.traefik]
   rule = "Host(`traefik.{{ traefik_hostname }}`) && PathPrefix(`/`)"
   service = "dashboard@internal"
-  entryPoints = ["websecure"]
-  [http.routers.traefik.tls]
-    certResolver = "default"
+  entryPoints = ["default"]
+
+{% if traefik_acme_provider is defined and traefik_acme_provider != "" %}
+    [http.routers.traefik.tls]
+    certResolver = "default"    
+    [[http.routers.traefik.tls.domains]]
+    main = "traefik.{{ traefik_hostname }}"
+{% endif %}
