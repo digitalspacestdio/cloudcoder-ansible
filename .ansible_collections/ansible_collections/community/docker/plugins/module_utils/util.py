@@ -1,5 +1,6 @@
 # Copyright 2016 Red Hat | Ansible
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
@@ -107,22 +108,9 @@ class DockerBaseClass(object):
 
 def update_tls_hostname(result, old_behavior=False, deprecate_function=None, uses_tls=True):
     if result['tls_hostname'] is None:
-        if old_behavior:
-            result['tls_hostname'] = DEFAULT_TLS_HOSTNAME
-            if uses_tls and deprecate_function is not None:
-                deprecate_function(
-                    'The default value "localhost" for tls_hostname is deprecated and will be removed in community.docker 3.0.0.'
-                    ' From then on, docker_host will be used to compute tls_hostname. If you want to keep using "localhost",'
-                    ' please set that value explicitly.',
-                    version='3.0.0', collection_name='community.docker')
-            return
-
         # get default machine name from the url
         parsed_url = urlparse(result['docker_host'])
-        if ':' in parsed_url.netloc:
-            result['tls_hostname'] = parsed_url.netloc[:parsed_url.netloc.rindex(':')]
-        else:
-            result['tls_hostname'] = parsed_url
+        result['tls_hostname'] = parsed_url.netloc.rsplit(':', 1)[0]
 
 
 def compare_dict_allow_more_present(av, bv):
@@ -344,6 +332,49 @@ def convert_duration_to_nanosecond(time_str):
     return time_in_nanoseconds
 
 
+def normalize_healthcheck_test(test):
+    if isinstance(test, (tuple, list)):
+        return [str(e) for e in test]
+    return ['CMD-SHELL', str(test)]
+
+
+def normalize_healthcheck(healthcheck, normalize_test=False):
+    """
+    Return dictionary of healthcheck parameters.
+    """
+    result = dict()
+
+    # All supported healthcheck parameters
+    options = ('test', 'interval', 'timeout', 'start_period', 'retries')
+
+    duration_options = ('interval', 'timeout', 'start_period')
+
+    for key in options:
+        if key in healthcheck:
+            value = healthcheck[key]
+            if value is None:
+                # due to recursive argument_spec, all keys are always present
+                # (but have default value None if not specified)
+                continue
+            if key in duration_options:
+                value = convert_duration_to_nanosecond(value)
+            if not value:
+                continue
+            if key == 'retries':
+                try:
+                    value = int(value)
+                except ValueError:
+                    raise ValueError(
+                        'Cannot parse number of retries for healthcheck. '
+                        'Expected an integer, got "{0}".'.format(value)
+                    )
+            if key == 'test' and normalize_test:
+                value = normalize_healthcheck_test(value)
+            result[key] = value
+
+    return result
+
+
 def parse_healthcheck(healthcheck):
     """
     Return dictionary of healthcheck parameters and boolean if
@@ -352,44 +383,7 @@ def parse_healthcheck(healthcheck):
     if (not healthcheck) or (not healthcheck.get('test')):
         return None, None
 
-    result = dict()
-
-    # All supported healthcheck parameters
-    options = dict(
-        test='test',
-        interval='interval',
-        timeout='timeout',
-        start_period='start_period',
-        retries='retries'
-    )
-
-    duration_options = ['interval', 'timeout', 'start_period']
-
-    for (key, value) in options.items():
-        if value in healthcheck:
-            if healthcheck.get(value) is None:
-                # due to recursive argument_spec, all keys are always present
-                # (but have default value None if not specified)
-                continue
-            if value in duration_options:
-                time = convert_duration_to_nanosecond(healthcheck.get(value))
-                if time:
-                    result[key] = time
-            elif healthcheck.get(value):
-                result[key] = healthcheck.get(value)
-                if key == 'test':
-                    if isinstance(result[key], (tuple, list)):
-                        result[key] = [str(e) for e in result[key]]
-                    else:
-                        result[key] = ['CMD-SHELL', str(result[key])]
-                elif key == 'retries':
-                    try:
-                        result[key] = int(result[key])
-                    except ValueError:
-                        raise ValueError(
-                            'Cannot parse number of retries for healthcheck. '
-                            'Expected an integer, got "{0}".'.format(result[key])
-                        )
+    result = normalize_healthcheck(healthcheck, normalize_test=True)
 
     if result['test'] == ['NONE']:
         # If the user explicitly disables the healthcheck, return None

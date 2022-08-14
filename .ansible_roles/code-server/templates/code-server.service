@@ -6,6 +6,8 @@ After=network.target network-online.target
 [Service]
 Type=simple
 User={{ code_server_user }}
+Restart=on-failure
+RestartSec=3
 {% if code_server_password is defined %}
 EnvironmentFile={{ code_server_data_dir_abs }}/env
 {% endif %}

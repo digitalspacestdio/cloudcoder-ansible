@@ -28,7 +28,7 @@ code_server_download_needed: >-
   or code_server_version.stdout != code_server_cleaned_ver }}
 
 # The subdirectory under URL prefix containing code-server artifacts
-code_server_download_dir: "{{ 'v' if code_server_cleaned_ver is version('3.3.0', '>=') else '' }}{{ code_server_short_ver if code_server_short_ver is version('2.1698', '>=') else code_server_cleaned_ver }}"
+code_server_download_dir: "{{ 'v' if code_server_cleaned_ver is version('3.3.0', '>=') else '' }}{{ code_server_cleaned_ver }}"
 
 # The major version of code-server in string
 code_server_major: "{{ code_server_cleaned_ver.split('.')[0] }}"

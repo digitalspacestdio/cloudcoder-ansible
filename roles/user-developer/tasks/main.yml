@@ -18,11 +18,17 @@
     update_password: always
     password: "{{ developer_password | password_hash('sha512') }}"
 
-- name: Dissalow root password login via ssh
+- name: Allow root password login via ssh
   replace:
     path: /etc/ssh/sshd_config
     regexp: '^.*PermitRootLogin.*$'
-    replace: 'PermitRootLogin no'
+    replace: 'PermitRootLogin yes'
+
+- name: Dissalow root password login via ssh
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^.*PasswordAuthentication.*$'
+    replace: 'PasswordAuthentication no'
 
 - name: 'Set ClientAliveInterval to 3600'
   lineinfile:
@@ -39,3 +45,10 @@
     dest: /usr/local/bin/git-ssh
     owner: root
     mode: u=rwx,g=rx,o=rx
+
+- name: Ensure ownerships
+  file:
+    dest: "{{ developer_user_info.home }}"
+    owner: "{{ developer_username }}"
+    recurse: true
+  when: developer_user_info.home is regex('^/home/.*')

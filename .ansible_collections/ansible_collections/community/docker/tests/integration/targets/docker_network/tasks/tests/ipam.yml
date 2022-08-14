@@ -1,4 +1,8 @@
 ---
+# Copyright (c) Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 - name: Registering network names
   set_fact:
     nname_ipam_0: "{{ name_prefix ~ '-network-ipam-0' }}"
@@ -303,10 +307,3 @@
       - network_1 is changed
       - network_2 is not changed
       - network_3 is changed
-  when: docker_py_version is version('2.0.0', '>=')
-- assert:
-    that:
-      - network_1 is failed
-      - "('version is ' ~ docker_py_version ~ ' ') in network_1.msg"
-      - "'Minimum version required is 2.0.0 ' in network_1.msg"
-  when: docker_py_version is version('2.0.0', '<')

@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 # Copyright 2016 Red Hat | Ansible
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -59,7 +60,7 @@ options:
       - Use with state C(present) to force creating a new Swarm, even if already part of one.
       - Use with state C(absent) to Leave the swarm even if this node is a manager.
     type: bool
-    default: no
+    default: false
   state:
     description:
       - Set to C(present), to create/update a new cluster.
@@ -164,17 +165,17 @@ options:
   autolock_managers:
     description:
       - If set, generate a key and use it to lock data stored on the managers.
-      - Docker default value is C(no).
+      - Docker default value is C(false).
       - M(community.docker.docker_swarm_info) can be used to retrieve the unlock key.
     type: bool
   rotate_worker_token:
     description: Rotate the worker join token.
     type: bool
-    default: no
+    default: false
   rotate_manager_token:
     description: Rotate the manager join token.
     type: bool
-    default: no
+    default: false
   data_path_addr:
     description:
       - Address or interface to use for data path traffic.
@@ -189,7 +190,7 @@ extends_documentation_fragment:
 - community.docker.docker.docker_py_1_documentation
 
 requirements:
-  - "L(Docker SDK for Python,https://docker-py.readthedocs.io/en/stable/) >= 1.10.0 (use L(docker-py,https://pypi.org/project/docker-py/) for Python 2.6)"
+  - "L(Docker SDK for Python,https://docker-py.readthedocs.io/en/stable/) >= 1.10.0"
   - Docker API >= 1.25
 author:
   - Thierry Bouvet (@tbouvet)
@@ -276,7 +277,7 @@ actions:
   returned: when action failed.
   type: list
   elements: str
-  example: "['This cluster is already a swarm cluster']"
+  example: ['This cluster is already a swarm cluster']
 
 '''
 
@@ -671,7 +672,6 @@ def main():
         supports_check_mode=True,
         required_if=required_if,
         min_docker_version='1.10.0',
-        min_docker_api_version='1.25',
         option_minimal_versions=option_minimal_versions,
     )
 
@@ -688,7 +688,7 @@ def main():
         client.fail('An unexpected docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
     except RequestException as e:
         client.fail(
-            'An unexpected requests error occurred when docker-py tried to talk to the docker daemon: {0}'.format(to_native(e)),
+            'An unexpected requests error occurred when Docker SDK for Python tried to talk to the docker daemon: {0}'.format(to_native(e)),
             exception=traceback.format_exc())
 
 

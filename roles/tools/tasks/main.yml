@@ -17,6 +17,11 @@
     pkg: "{{ base_packages }}"
     state: present
 
+- name: Install pip packages
+  pip:
+    name: "{{ pip_packages }}"
+    state: present
+
 - name: Download PUP {{ pup_version }}
   get_url:
     url: https://github.com/ericchiang/pup/releases/download/{{ pup_version }}/pup_{{ pup_version }}_linux_amd64.zip

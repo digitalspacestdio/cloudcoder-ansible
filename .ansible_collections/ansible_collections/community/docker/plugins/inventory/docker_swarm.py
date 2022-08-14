@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2018, Stefan Heitmueller <stefan.heitmueller@gmx.com>
 # Copyright (c) 2018 Ansible Project
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import (absolute_import, division, print_function)
 
@@ -41,16 +42,16 @@ DOCUMENTATION = '''
             description: Toggle to (not) include all available nodes metadata (for example C(Platform), C(Architecture), C(OS),
                          C(EngineVersion))
             type: bool
-            default: yes
+            default: true
         tls:
             description: Connect using TLS without verifying the authenticity of the Docker host server.
             type: bool
-            default: no
+            default: false
         validate_certs:
             description: Toggle if connecting using TLS with or without verifying the authenticity of the Docker
                          host server.
             type: bool
-            default: no
+            default: false
             aliases: [ tls_verify ]
         client_key:
             description: Path to the client's TLS key file.
@@ -75,7 +76,7 @@ DOCUMENTATION = '''
         api_version:
             description:
                 - The version of the Docker API running on the Docker Host.
-                - Defaults to the latest version of the API supported by docker-py.
+                - Defaults to the latest version of the API supported by Docker SDK for Python.
             type: str
             aliases: [ docker_api_version ]
         timeout:
@@ -91,7 +92,7 @@ DOCUMENTATION = '''
                 - For SSH transports, use the C(ssh) CLI tool instead of paramiko.
                 - Requires Docker SDK for Python 4.4.0 or newer.
             type: bool
-            default: no
+            default: false
             version_added: 1.5.0
         include_host_uri:
             description: Toggle to return the additional attribute C(ansible_host_uri) which contains the URI of the
@@ -99,7 +100,7 @@ DOCUMENTATION = '''
                          modification as value of option I(docker_host) in Docker Swarm modules when connecting via API.
                          The port always defaults to C(2376).
             type: bool
-            default: no
+            default: false
         include_host_uri_port:
             description: Override the detected port number included in I(ansible_host_uri)
             type: int
@@ -117,12 +118,12 @@ docker_host: tcp://my-docker-host:2375
 # Example using remote docker with unverified TLS
 plugin: community.docker.docker_swarm
 docker_host: tcp://my-docker-host:2376
-tls: yes
+tls: true
 
 # Example using remote docker with verified TLS and client certificate verification
 plugin: community.docker.docker_swarm
 docker_host: tcp://my-docker-host:2376
-validate_certs: yes
+validate_certs: true
 ca_cert: /somewhere/ca.pem
 client_key: /somewhere/key.pem
 client_cert: /somewhere/cert.pem

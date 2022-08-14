@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2016 Red Hat | Ansible
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -28,15 +29,13 @@ options:
     required: true
 
 extends_documentation_fragment:
-- community.docker.docker
-- community.docker.docker.docker_py_2_documentation
+  - community.docker.docker.api_documentation
 
 notes:
   - Does not support C(check_mode).
 
 requirements:
-  - "L(Docker SDK for Python,https://docker-py.readthedocs.io/en/stable/) >= 2.5.0"
-  - "Docker API >= 1.23"
+  - "Docker API >= 1.25"
 
 author:
   - Felix Fontein (@felixfontein)
@@ -75,7 +74,7 @@ import traceback
 
 from ansible.module_utils.common.text.converters import to_native
 
-from ansible_collections.community.docker.plugins.module_utils.common import (
+from ansible_collections.community.docker.plugins.module_utils.common_api import (
     AnsibleDockerClient,
     RequestException,
 )
@@ -84,11 +83,7 @@ from ansible_collections.community.docker.plugins.module_utils.util import (
     is_image_name_id,
 )
 
-try:
-    from docker.errors import DockerException
-except ImportError:
-    # missing Docker SDK for Python handled in module_utils.docker.common
-    pass
+from ansible_collections.community.docker.plugins.module_utils._api.errors import DockerException
 
 
 class ImageManager(DockerBaseClass):
@@ -125,7 +120,8 @@ class ImageManager(DockerBaseClass):
             self.log("Opening image {0}".format(self.path))
             with open(self.path, 'rb') as image_tar:
                 self.log("Loading images from {0}".format(self.path))
-                for line in self.client.load_image(image_tar):
+                res = self.client._post(self.client._url("/images/load"), data=image_tar, stream=True)
+                for line in self.client._stream_helper(res, decode=True):
                     self.log(line, pretty_print=True)
                     self._extract_output_line(line, load_output)
         except EnvironmentError as exc:
@@ -168,8 +164,6 @@ def main():
             path=dict(type='path', required=True),
         ),
         supports_check_mode=False,
-        min_docker_version='2.5.0',
-        min_docker_api_version='1.23',
     )
 
     try:
@@ -181,10 +175,10 @@ def main():
         ImageManager(client, results)
         client.module.exit_json(**results)
     except DockerException as e:
-        client.fail('An unexpected docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
+        client.fail('An unexpected Docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
     except RequestException as e:
         client.fail(
-            'An unexpected requests error occurred when docker-py tried to talk to the docker daemon: {0}'.format(to_native(e)),
+            'An unexpected requests error occurred when trying to talk to the Docker daemon: {0}'.format(to_native(e)),
             exception=traceback.format_exc())
 
 

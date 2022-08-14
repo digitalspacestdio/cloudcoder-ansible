@@ -35,3 +35,6 @@ base_packages:
   - fail2ban
   - ufw
   - net-tools
+
+pip_packages:
+  - jmespath

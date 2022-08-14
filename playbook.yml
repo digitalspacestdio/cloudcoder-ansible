@@ -6,7 +6,7 @@
     - service_started: [ ]
     - service_restarted: [ ]
   pre_tasks:
-    - name: 'Install python if not installed'
+    - name: 'Ensure python'
       raw: "sh -c 'test -e /usr/bin/python3 || (apt -yqq update && apt install -yqq python3)'"
       args:
         warn: false

@@ -1,6 +1,7 @@
 - name: Create code-server data dir
   file:
     path: "{{ code_server_data_dir }}"
+    
     state: directory
     mode: 0755
 
@@ -9,6 +10,7 @@
     src: env
     dest: "{{ code_server_data_dir }}"
     mode: 0600
+    owner:  "{{ code_server_user }}"
   notify: Restart code-server
   when: code_server_password is defined or
         code_server_env|length > 0

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2019, Ximon Eighteen <ximon.eighteen@gmail.com>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
@@ -22,7 +23,7 @@ DOCUMENTATION = '''
     options:
         plugin:
             description: token that ensures this is a source file for the C(docker_machine) plugin.
-            required: yes
+            required: true
             choices: ['docker_machine', 'community.docker.docker_machine']
         daemon_env:
             description:
@@ -45,13 +46,13 @@ DOCUMENTATION = '''
             description:
                 - When C(true), hosts which Docker Machine indicates are in a state other than C(running) will be skipped.
             type: bool
-            default: yes
+            default: true
         verbose_output:
             description:
                 - When C(true), include all available nodes metadata (for exmaple C(Image), C(Region), C(Size)) as a JSON object
                   named C(docker_machine_node_attributes).
             type: bool
-            default: yes
+            default: true
 '''
 
 EXAMPLES = '''
@@ -70,13 +71,13 @@ plugin: community.docker.docker_machine
 #       ]
 #     ...
 #   }
-strict: no
+strict: false
 keyed_groups:
   - separator: ''
     key: docker_machine_node_attributes.DriverName
 
 # Example grouping hosts by Digital Machine tag
-strict: no
+strict: false
 keyed_groups:
   - prefix: tag
     key: 'dm_tags'

@@ -1,7 +1,8 @@
 #!/usr/bin/python
 #
-# (c) 2019 Piotr Wojciechowski <piotr@it-playground.pl>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2019 Piotr Wojciechowski <piotr@it-playground.pl>
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -28,7 +29,7 @@ options:
     description:
       - Whether to list containers.
     type: bool
-    default: no
+    default: false
   containers_filters:
     description:
       - A dictionary of filter values used for selecting containers to list.
@@ -42,7 +43,7 @@ options:
     description:
       - Whether to list images.
     type: bool
-    default: no
+    default: false
   images_filters:
     description:
       - A dictionary of filter values used for selecting images to list.
@@ -56,7 +57,7 @@ options:
     description:
       - Whether to list networks.
     type: bool
-    default: no
+    default: false
   networks_filters:
     description:
       - A dictionary of filter values used for selecting networks to list.
@@ -69,7 +70,7 @@ options:
     description:
       - Whether to list volumes.
     type: bool
-    default: no
+    default: false
   volumes_filters:
     description:
       - A dictionary of filter values used for selecting volumes to list.
@@ -83,27 +84,25 @@ options:
       - Summary information on used disk space by all Docker layers.
       - The output is a sum of images, volumes, containers and build cache.
     type: bool
-    default: no
+    default: false
   verbose_output:
     description:
-      - When set to C(yes) and I(networks), I(volumes), I(images), I(containers) or I(disk_usage) is set to C(yes)
+      - When set to C(true) and I(networks), I(volumes), I(images), I(containers) or I(disk_usage) is set to C(true)
         then output will contain verbose information about objects matching the full output of API method.
         For details see the documentation of your version of Docker API at U(https://docs.docker.com/engine/api/).
       - The verbose output in this module contains only subset of information returned by I(_info) module
         for each type of the objects.
     type: bool
-    default: no
+    default: false
 extends_documentation_fragment:
-- community.docker.docker
-- community.docker.docker.docker_py_1_documentation
+- community.docker.docker.api_documentation
 
 
 author:
   - Piotr Wojciechowski (@WojciechowskiPiotr)
 
 requirements:
-  - "L(Docker SDK for Python,https://docker-py.readthedocs.io/en/stable/) >= 1.10.0 (use L(docker-py,https://pypi.org/project/docker-py/) for Python 2.6)"
-  - "Docker API >= 1.21"
+  - "Docker API >= 1.25"
 '''
 
 EXAMPLES = '''
@@ -113,30 +112,30 @@ EXAMPLES = '''
 
 - name: Get info on docker host and list images
   community.docker.docker_host_info:
-    images: yes
+    images: true
   register: result
 
 - name: Get info on docker host and list images matching the filter
   community.docker.docker_host_info:
-    images: yes
+    images: true
     images_filters:
       label: "mylabel"
   register: result
 
 - name: Get info on docker host and verbose list images
   community.docker.docker_host_info:
-    images: yes
-    verbose_output: yes
+    images: true
+    verbose_output: true
   register: result
 
 - name: Get info on docker host and used disk space
   community.docker.docker_host_info:
-    disk_usage: yes
+    disk_usage: true
   register: result
 
 - name: Get info on docker host and list containers matching the filter
   community.docker.docker_host_info:
-    containers: yes
+    containers: true
     containers_filters:
       label:
         - key1=value1
@@ -163,40 +162,40 @@ host_info:
 volumes:
     description:
       - List of dict objects containing the basic information about each volume.
-        Keys matches the C(docker volume ls) output unless I(verbose_output=yes).
+        Keys matches the C(docker volume ls) output unless I(verbose_output=true).
         See description for I(verbose_output).
-    returned: When I(volumes) is C(yes)
+    returned: When I(volumes) is C(true)
     type: list
     elements: dict
 networks:
     description:
       - List of dict objects containing the basic information about each network.
-        Keys matches the C(docker network ls) output unless I(verbose_output=yes).
+        Keys matches the C(docker network ls) output unless I(verbose_output=true).
         See description for I(verbose_output).
-    returned: When I(networks) is C(yes)
+    returned: When I(networks) is C(true)
     type: list
     elements: dict
 containers:
     description:
       - List of dict objects containing the basic information about each container.
-        Keys matches the C(docker container ls) output unless I(verbose_output=yes).
+        Keys matches the C(docker container ls) output unless I(verbose_output=true).
         See description for I(verbose_output).
-    returned: When I(containers) is C(yes)
+    returned: When I(containers) is C(true)
     type: list
     elements: dict
 images:
     description:
       - List of dict objects containing the basic information about each image.
-        Keys matches the C(docker image ls) output unless I(verbose_output=yes).
+        Keys matches the C(docker image ls) output unless I(verbose_output=true).
         See description for I(verbose_output).
-    returned: When I(images) is C(yes)
+    returned: When I(images) is C(true)
     type: list
     elements: dict
 disk_usage:
     description:
       - Information on summary disk usage by images, containers and volumes on docker host
-        unless I(verbose_output=yes). See description for I(verbose_output).
-    returned: When I(disk_usage) is C(yes)
+        unless I(verbose_output=true). See description for I(verbose_output).
+    returned: When I(disk_usage) is C(true)
     type: dict
 
 '''
@@ -205,21 +204,17 @@ import traceback
 
 from ansible.module_utils.common.text.converters import to_native
 
-from ansible_collections.community.docker.plugins.module_utils.common import (
+from ansible_collections.community.docker.plugins.module_utils.common_api import (
     AnsibleDockerClient,
     RequestException,
 )
-
-try:
-    from docker.errors import DockerException, APIError
-except ImportError:
-    # Missing Docker SDK for Python handled in ansible.module_utils.docker.common
-    pass
 
 from ansible_collections.community.docker.plugins.module_utils.util import (
     DockerBaseClass,
     clean_dict_booleans_for_docker_api,
 )
+from ansible_collections.community.docker.plugins.module_utils._api.errors import DockerException, APIError
+from ansible_collections.community.docker.plugins.module_utils._api.utils.utils import convert_filters
 
 
 class DockerHostManager(DockerBaseClass):
@@ -275,25 +270,37 @@ class DockerHostManager(DockerBaseClass):
             filter_arg['filters'] = filters
         try:
             if docker_object == 'containers':
-                items = self.client.containers(**filter_arg)
+                params = {
+                    'limit': -1,
+                    'all': 0,
+                    'size': 0,
+                    'trunc_cmd': 0,
+                    'filters': convert_filters(filters) if filters else None,
+                }
+                items = self.client.get_json("/containers/json", params=params)
             elif docker_object == 'networks':
-                items = self.client.networks(**filter_arg)
+                params = {
+                    'filters': convert_filters(filters or {})
+                }
+                items = self.client.get_json("/networks", params=params)
             elif docker_object == 'images':
-                items = self.client.images(**filter_arg)
+                params = {
+                    'only_ids': 0,
+                    'all': 0,
+                    'filters': convert_filters(filters) if filters else None,
+                }
+                items = self.client.get_json("/images/json", params=params)
             elif docker_object == 'volumes':
-                items = self.client.volumes(**filter_arg)
+                params = {
+                    'filters': convert_filters(filters) if filters else None,
+                }
+                items = self.client.get_json('/volumes', params=params)
+                items = items['Volumes']
         except APIError as exc:
-            self.client.fail("Error inspecting docker host for object '%s': %s" %
-                             (docker_object, to_native(exc)))
+            self.client.fail("Error inspecting docker host for object '%s': %s" % (docker_object, to_native(exc)))
 
         if self.verbose_output:
-            if docker_object != 'volumes':
-                return items
-            else:
-                return items['Volumes']
-
-        if docker_object == 'volumes':
-            items = items['Volumes']
+            return items
 
         for item in items:
             item_record = dict()
@@ -329,17 +336,9 @@ def main():
         verbose_output=dict(type='bool', default=False),
     )
 
-    option_minimal_versions = dict(
-        network_filters=dict(docker_py_version='2.0.2'),
-        disk_usage=dict(docker_py_version='2.2.0'),
-    )
-
     client = AnsibleDockerClient(
         argument_spec=argument_spec,
         supports_check_mode=True,
-        min_docker_version='1.10.0',
-        min_docker_api_version='1.21',
-        option_minimal_versions=option_minimal_versions,
         fail_results=dict(
             can_talk_to_docker=False,
         ),
@@ -354,10 +353,10 @@ def main():
         DockerHostManager(client, results)
         client.module.exit_json(**results)
     except DockerException as e:
-        client.fail('An unexpected docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
+        client.fail('An unexpected Docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
     except RequestException as e:
         client.fail(
-            'An unexpected requests error occurred when docker-py tried to talk to the docker daemon: {0}'.format(to_native(e)),
+            'An unexpected requests error occurred when trying to talk to the Docker daemon: {0}'.format(to_native(e)),
             exception=traceback.format_exc())
 
 

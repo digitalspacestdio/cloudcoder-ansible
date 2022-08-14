@@ -1,7 +1,8 @@
 #!/usr/bin/python
 #
 # Copyright 2016 Red Hat | Ansible
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -86,7 +87,7 @@ options:
     description:
       - When I(state) is C(present) specify whether or not to include linked services.
     type: bool
-    default: yes
+    default: true
   definition:
     description:
       - Compose file describing one or more services, networks and volumes.
@@ -96,7 +97,7 @@ options:
     description:
       - Whether or not to check the Docker daemon's hostname against the name provided in the client certificate.
     type: bool
-    default: no
+    default: false
   recreate:
     description:
       - By default containers will be recreated when their configuration differs from the service definition.
@@ -116,19 +117,19 @@ options:
       - Use the I(nocache) option to ignore the image cache when performing the build.
       - If an existing image is replaced, services using the image will be recreated unless I(recreate) is C(never).
     type: bool
-    default: no
+    default: false
   pull:
     description:
       - Use with I(state) C(present) to always pull images prior to starting the application.
       - Same as running C(docker-compose pull).
       - When a new image is pulled, services using the image will be recreated unless I(recreate) is C(never).
     type: bool
-    default: no
+    default: false
   nocache:
     description:
       - Use with the I(build) option to ignore the cache during the image build process.
     type: bool
-    default: no
+    default: false
   remove_images:
     description:
       - Use with I(state) C(absent) to remove all images or only local images.
@@ -140,7 +141,7 @@ options:
     description:
       - Use with I(state) C(absent) to remove data volumes.
     type: bool
-    default: no
+    default: false
   stopped:
     description:
       - Use with I(state) C(present) to stop all containers defined in the Compose file.
@@ -148,18 +149,18 @@ options:
       - Requires C(docker-compose) version 1.17.0 or greater for full support. For older versions, the services will
         first be started and then stopped when the service is supposed to be created as stopped.
     type: bool
-    default: no
+    default: false
   restarted:
     description:
       - Use with I(state) C(present) to restart all containers defined in the Compose file.
       - If I(services) is defined, only the containers listed there will be restarted.
     type: bool
-    default: no
+    default: false
   remove_orphans:
     description:
       - Remove containers for services not defined in the Compose file.
     type: bool
-    default: no
+    default: false
   timeout:
     description:
       - Timeout in seconds for container shutdown when attached or when containers are already running.
@@ -177,9 +178,9 @@ extends_documentation_fragment:
 
 
 requirements:
-  - "L(Docker SDK for Python,https://docker-py.readthedocs.io/en/stable/) >= 1.8.0 (use L(docker-py,https://pypi.org/project/docker-py/) for Python 2.6)"
+  - "L(Docker SDK for Python,https://docker-py.readthedocs.io/en/stable/) >= 1.8.0"
   - "docker-compose >= 1.7.0, < 2.0.0"
-  - "Docker API >= 1.20"
+  - "Docker API >= 1.25"
   - "PyYAML >= 3.11"
 '''
 
@@ -189,7 +190,7 @@ EXAMPLES = '''
 
 - name: Run using a project directory
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   tasks:
     - name: Tear down existing services
       community.docker.docker_compose:
@@ -207,7 +208,7 @@ EXAMPLES = '''
     - name: Run `docker-compose up` again
       community.docker.docker_compose:
         project_src: flask
-        build: no
+        build: false
       register: output
 
     - ansible.builtin.debug:
@@ -219,8 +220,8 @@ EXAMPLES = '''
     - name: Stop all services
       community.docker.docker_compose:
         project_src: flask
-        build: no
-        stopped: yes
+        build: false
+        stopped: true
       register: output
 
     - ansible.builtin.debug:
@@ -234,8 +235,8 @@ EXAMPLES = '''
     - name: Restart services
       community.docker.docker_compose:
         project_src: flask
-        build: no
-        restarted: yes
+        build: false
+        restarted: true
       register: output
 
     - ansible.builtin.debug:
@@ -248,7 +249,7 @@ EXAMPLES = '''
 
 - name: Scale the web service to 2
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   tasks:
     - community.docker.docker_compose:
         project_src: flask
@@ -261,7 +262,7 @@ EXAMPLES = '''
 
 - name: Run with inline v2 compose
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   tasks:
     - community.docker.docker_compose:
         project_src: flask
@@ -295,7 +296,7 @@ EXAMPLES = '''
 
 - name: Run with inline v1 compose
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   tasks:
     - community.docker.docker_compose:
         project_src: flask
@@ -415,7 +416,7 @@ services:
 
 actions:
   description: Provides the actions to be taken on each service as determined by compose.
-  returned: when in check mode or I(debug) is C(yes)
+  returned: when in check mode or I(debug) is C(true)
   type: complex
   contains:
       service_name:
@@ -1194,7 +1195,6 @@ def main():
         argument_spec=argument_spec,
         mutually_exclusive=mutually_exclusive,
         supports_check_mode=True,
-        min_docker_api_version='1.20',
     )
 
     try:
@@ -1204,7 +1204,7 @@ def main():
         client.fail('An unexpected docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
     except RequestException as e:
         client.fail(
-            'An unexpected requests error occurred when docker-py tried to talk to the docker daemon: {0}'.format(to_native(e)),
+            'An unexpected requests error occurred when Docker SDK for Python tried to talk to the docker daemon: {0}'.format(to_native(e)),
             exception=traceback.format_exc())
 
 

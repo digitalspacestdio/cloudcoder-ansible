@@ -2,7 +2,8 @@
 # coding: utf-8
 #
 # Copyright 2017 Red Hat | Ansible, Alex Grönholm <alex.gronholm@nextday.fi>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -18,21 +19,19 @@ options:
     description:
       - Name of the volume to inspect.
     type: str
-    required: yes
+    required: true
     aliases:
       - volume_name
 
 extends_documentation_fragment:
-- community.docker.docker
-- community.docker.docker.docker_py_1_documentation
+- community.docker.docker.api_documentation
 
 
 author:
   - Felix Fontein (@felixfontein)
 
 requirements:
-  - "L(Docker SDK for Python,https://docker-py.readthedocs.io/en/stable/) >= 1.8.0 (use L(docker-py,https://pypi.org/project/docker-py/) for Python 2.6)"
-  - "Docker API >= 1.21"
+  - "Docker API >= 1.25"
 '''
 
 EXAMPLES = '''
@@ -79,21 +78,16 @@ import traceback
 
 from ansible.module_utils.common.text.converters import to_native
 
-try:
-    from docker.errors import DockerException, NotFound
-except ImportError:
-    # missing Docker SDK for Python handled in ansible.module_utils.docker.common
-    pass
-
-from ansible_collections.community.docker.plugins.module_utils.common import (
+from ansible_collections.community.docker.plugins.module_utils.common_api import (
     AnsibleDockerClient,
     RequestException,
 )
+from ansible_collections.community.docker.plugins.module_utils._api.errors import DockerException, NotFound
 
 
 def get_existing_volume(client, volume_name):
     try:
-        return client.inspect_volume(volume_name)
+        return client.get_json('/volumes/{0}', volume_name)
     except NotFound as dummy:
         return None
     except Exception as exc:
@@ -108,8 +102,6 @@ def main():
     client = AnsibleDockerClient(
         argument_spec=argument_spec,
         supports_check_mode=True,
-        min_docker_version='1.8.0',
-        min_docker_api_version='1.21',
     )
 
     try:
@@ -121,10 +113,10 @@ def main():
             volume=volume,
         )
     except DockerException as e:
-        client.fail('An unexpected docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
+        client.fail('An unexpected Docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
     except RequestException as e:
         client.fail(
-            'An unexpected requests error occurred when docker-py tried to talk to the docker daemon: {0}'.format(to_native(e)),
+            'An unexpected requests error occurred when trying to talk to the Docker daemon: {0}'.format(to_native(e)),
             exception=traceback.format_exc())
 
 

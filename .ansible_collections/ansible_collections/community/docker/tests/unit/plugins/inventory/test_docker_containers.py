@@ -1,5 +1,6 @@
 # Copyright (c), Felix Fontein <felix@fontein.de>, 2020
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
@@ -10,7 +11,7 @@ import textwrap
 
 import pytest
 
-from mock import MagicMock
+from ansible_collections.community.docker.tests.unit.compat.mock import MagicMock
 
 from ansible import constants as C
 from ansible.errors import AnsibleError
@@ -93,29 +94,22 @@ def create_get_option(options, default=False):
 
 class FakeClient(object):
     def __init__(self, *hosts):
-        self.hosts = dict()
-        self.list_reply = []
+        self.get_results = {}
+        list_reply = []
         for host in hosts:
-            self.list_reply.append({
+            list_reply.append({
                 'Id': host['Id'],
                 'Names': [host['Name']] if host['Name'] else [],
                 'Image': host['Config']['Image'],
                 'ImageId': host['Image'],
             })
-            self.hosts[host['Name']] = host
-            self.hosts[host['Id']] = host
+            self.get_results['/containers/{0}/json'.format(host['Name'])] = host
+            self.get_results['/containers/{0}/json'.format(host['Id'])] = host
+        self.get_results['/containers/json'] = list_reply
 
-    def containers(self, all=False):
-        return list(self.list_reply)
-
-    def inspect_container(self, id):
-        return self.hosts[id]
-
-    def port(self, container, port):
-        host = self.hosts[container['Id']]
-        network_settings = host.get('NetworkSettings') or dict()
-        ports = network_settings.get('Ports') or dict()
-        return ports.get('{0}/tcp'.format(port)) or []
+    def get_json(self, url, *param, **kwargs):
+        url = url.format(*param)
+        return self.get_results[url]
 
 
 def test_populate(inventory, mocker):

@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2018 Dario Zanzico (git@dariozanzico.com)
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
@@ -21,7 +22,7 @@ options:
     description:
       - Stack name
     type: str
-    required: yes
+    required: true
   state:
     description:
       - Service state.
@@ -44,13 +45,13 @@ options:
         This will have docker remove the services not present in the
         current stack definition.
     type: bool
-    default: no
+    default: false
   with_registry_auth:
     description:
       - If true will add the C(--with-registry-auth) option to the C(docker stack deploy) command.
         This will have docker send registry authentication details to Swarm agents.
     type: bool
-    default: no
+    default: false
   resolve_image:
     description:
       - If set will add the C(--resolve-image) option to the C(docker stack deploy) command.
@@ -76,9 +77,6 @@ options:
 requirements:
   - jsondiff
   - pyyaml
-
-notes:
-  - Return values I(out) and I(err) have been deprecated and will be removed in community.docker 3.0.0. Use I(stdout) and I(stderr) instead.
 '''
 
 RETURN = '''
@@ -248,8 +246,7 @@ def main():
             elif isinstance(compose_def, string_types):
                 compose_files.append(compose_def)
             else:
-                module.fail_json(msg="compose element '%s' must be a " +
-                                 "string or a dictionary" % compose_def)
+                module.fail_json(msg="compose element '%s' must be a string or a dictionary" % compose_def)
 
         before_stack_services = docker_stack_inspect(module, name)
 
@@ -260,7 +257,6 @@ def main():
         if rc != 0:
             module.fail_json(msg="docker stack up deploy command failed",
                              rc=rc,
-                             out=out, err=err,  # Deprecated
                              stdout=out, stderr=err)
 
         before_after_differences = json_diff(before_stack_services,
@@ -294,12 +290,10 @@ def main():
             if rc != 0:
                 module.fail_json(msg="'docker stack down' command failed",
                                  rc=rc,
-                                 out=out, err=err,  # Deprecated
                                  stdout=out, stderr=err)
             else:
                 module.exit_json(changed=True,
                                  msg=out, rc=rc,
-                                 err=err,  # Deprecated
                                  stdout=out, stderr=err)
         module.exit_json(changed=False)
 

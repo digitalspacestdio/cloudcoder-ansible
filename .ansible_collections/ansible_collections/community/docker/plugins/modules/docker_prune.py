@@ -1,7 +1,8 @@
 #!/usr/bin/python
 #
 # Copyright 2016 Red Hat | Ansible
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -23,7 +24,7 @@ options:
     description:
       - Whether to prune containers.
     type: bool
-    default: no
+    default: false
   containers_filters:
     description:
       - A dictionary of filter values used for selecting containers to delete.
@@ -35,7 +36,7 @@ options:
     description:
       - Whether to prune images.
     type: bool
-    default: no
+    default: false
   images_filters:
     description:
       - A dictionary of filter values used for selecting images to delete.
@@ -47,7 +48,7 @@ options:
     description:
       - Whether to prune networks.
     type: bool
-    default: no
+    default: false
   networks_filters:
     description:
       - A dictionary of filter values used for selecting networks to delete.
@@ -58,7 +59,7 @@ options:
     description:
       - Whether to prune volumes.
     type: bool
-    default: no
+    default: false
   volumes_filters:
     description:
       - A dictionary of filter values used for selecting volumes to delete.
@@ -68,48 +69,45 @@ options:
   builder_cache:
     description:
       - Whether to prune the builder cache.
-      - Requires version 3.3.0 of the Docker SDK for Python or newer.
     type: bool
-    default: no
+    default: false
 
 extends_documentation_fragment:
-- community.docker.docker
-- community.docker.docker.docker_py_2_documentation
+  - community.docker.docker.api_documentation
 
 
 author:
   - "Felix Fontein (@felixfontein)"
 
 requirements:
-  - "L(Docker SDK for Python,https://docker-py.readthedocs.io/en/stable/) >= 2.1.0"
   - "Docker API >= 1.25"
 '''
 
 EXAMPLES = '''
 - name: Prune containers older than 24h
   community.docker.docker_prune:
-    containers: yes
+    containers: true
     containers_filters:
       # only consider containers created more than 24 hours ago
       until: 24h
 
 - name: Prune everything
   community.docker.docker_prune:
-    containers: yes
-    images: yes
-    networks: yes
-    volumes: yes
-    builder_cache: yes
+    containers: true
+    images: true
+    networks: true
+    volumes: true
+    builder_cache: true
 
 - name: Prune everything (including non-dangling images)
   community.docker.docker_prune:
-    containers: yes
-    images: yes
+    containers: true
+    images: true
     images_filters:
       dangling: false
-    networks: yes
-    volumes: yes
-    builder_cache: yes
+    networks: true
+    volumes: true
+    builder_cache: true
 '''
 
 RETURN = '''
@@ -120,13 +118,13 @@ containers:
     returned: I(containers) is C(true)
     type: list
     elements: str
-    sample: '[]'
+    sample: []
 containers_space_reclaimed:
     description:
       - Amount of reclaimed disk space from container pruning in bytes.
     returned: I(containers) is C(true)
     type: int
-    sample: '0'
+    sample: 0
 
 # images
 images:
@@ -135,13 +133,13 @@ images:
     returned: I(images) is C(true)
     type: list
     elements: str
-    sample: '[]'
+    sample: []
 images_space_reclaimed:
     description:
       - Amount of reclaimed disk space from image pruning in bytes.
     returned: I(images) is C(true)
     type: int
-    sample: '0'
+    sample: 0
 
 # networks
 networks:
@@ -150,7 +148,7 @@ networks:
     returned: I(networks) is C(true)
     type: list
     elements: str
-    sample: '[]'
+    sample: []
 
 # volumes
 volumes:
@@ -159,13 +157,13 @@ volumes:
     returned: I(volumes) is C(true)
     type: list
     elements: str
-    sample: '[]'
+    sample: []
 volumes_space_reclaimed:
     description:
       - Amount of reclaimed disk space from volumes pruning in bytes.
     returned: I(volumes) is C(true)
     type: int
-    sample: '0'
+    sample: 0
 
 # builder_cache
 builder_cache_space_reclaimed:
@@ -173,31 +171,22 @@ builder_cache_space_reclaimed:
       - Amount of reclaimed disk space from builder cache pruning in bytes.
     returned: I(builder_cache) is C(true)
     type: int
-    sample: '0'
+    sample: 0
 '''
 
 import traceback
 
 from ansible.module_utils.common.text.converters import to_native
 
-try:
-    from docker.errors import DockerException
-except ImportError:
-    # missing Docker SDK for Python handled in ansible.module_utils.docker.common
-    pass
-
-from ansible_collections.community.docker.plugins.module_utils.version import LooseVersion
-
-from ansible_collections.community.docker.plugins.module_utils.common import (
+from ansible_collections.community.docker.plugins.module_utils.common_api import (
     AnsibleDockerClient,
     RequestException,
 )
 
-try:
-    from ansible_collections.community.docker.plugins.module_utils.common import docker_version, clean_dict_booleans_for_docker_api
-except Exception as dummy:
-    # missing Docker SDK for Python handled in ansible.module_utils.docker.common
-    pass
+from ansible_collections.community.docker.plugins.module_utils.util import clean_dict_booleans_for_docker_api
+
+from ansible_collections.community.docker.plugins.module_utils._api.errors import DockerException
+from ansible_collections.community.docker.plugins.module_utils._api.utils.utils import convert_filters
 
 
 def main():
@@ -216,52 +205,48 @@ def main():
     client = AnsibleDockerClient(
         argument_spec=argument_spec,
         # supports_check_mode=True,
-        min_docker_api_version='1.25',
-        min_docker_version='2.1.0',
     )
-
-    # Version checks
-    cache_min_version = '3.3.0'
-    if client.module.params['builder_cache'] and client.docker_py_version < LooseVersion(cache_min_version):
-        msg = "Error: Docker SDK for Python's version is %s. Minimum version required for builds option is %s. Use `pip install --upgrade docker` to upgrade."
-        client.fail(msg % (docker_version, cache_min_version))
 
     try:
         result = dict()
 
         if client.module.params['containers']:
             filters = clean_dict_booleans_for_docker_api(client.module.params.get('containers_filters'))
-            res = client.prune_containers(filters=filters)
+            params = {'filters': convert_filters(filters)}
+            res = client.post_to_json('/containers/prune', params=params)
             result['containers'] = res.get('ContainersDeleted') or []
             result['containers_space_reclaimed'] = res['SpaceReclaimed']
 
         if client.module.params['images']:
             filters = clean_dict_booleans_for_docker_api(client.module.params.get('images_filters'))
-            res = client.prune_images(filters=filters)
+            params = {'filters': convert_filters(filters)}
+            res = client.post_to_json('/images/prune', params=params)
             result['images'] = res.get('ImagesDeleted') or []
             result['images_space_reclaimed'] = res['SpaceReclaimed']
 
         if client.module.params['networks']:
             filters = clean_dict_booleans_for_docker_api(client.module.params.get('networks_filters'))
-            res = client.prune_networks(filters=filters)
+            params = {'filters': convert_filters(filters)}
+            res = client.post_to_json('/networks/prune', params=params)
             result['networks'] = res.get('NetworksDeleted') or []
 
         if client.module.params['volumes']:
             filters = clean_dict_booleans_for_docker_api(client.module.params.get('volumes_filters'))
-            res = client.prune_volumes(filters=filters)
+            params = {'filters': convert_filters(filters)}
+            res = client.post_to_json('/volumes/prune', params=params)
             result['volumes'] = res.get('VolumesDeleted') or []
             result['volumes_space_reclaimed'] = res['SpaceReclaimed']
 
         if client.module.params['builder_cache']:
-            res = client.prune_builds()
+            res = client.post_to_json('/build/prune')
             result['builder_cache_space_reclaimed'] = res['SpaceReclaimed']
 
         client.module.exit_json(**result)
     except DockerException as e:
-        client.fail('An unexpected docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
+        client.fail('An unexpected Docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
     except RequestException as e:
         client.fail(
-            'An unexpected requests error occurred when docker-py tried to talk to the docker daemon: {0}'.format(to_native(e)),
+            'An unexpected requests error occurred when trying to talk to the Docker daemon: {0}'.format(to_native(e)),
             exception=traceback.format_exc())
 
 

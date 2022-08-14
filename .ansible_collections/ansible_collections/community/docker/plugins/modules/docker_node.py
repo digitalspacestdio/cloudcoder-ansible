@@ -1,7 +1,8 @@
 #!/usr/bin/python
 #
-# (c) 2019 Piotr Wojciechowski <piotr@it-playground.pl>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2019 Piotr Wojciechowski <piotr@it-playground.pl>
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 
@@ -21,7 +22,7 @@ options:
             - If more than one node is registered using the same hostname the ID must be used,
               otherwise module will fail.
         type: str
-        required: yes
+        required: true
     labels:
         description:
             - User-defined key/value metadata that will be assigned as node attribute.
@@ -274,7 +275,6 @@ def main():
         argument_spec=argument_spec,
         supports_check_mode=True,
         min_docker_version='2.4.0',
-        min_docker_api_version='1.25',
     )
 
     try:
@@ -288,7 +288,7 @@ def main():
         client.fail('An unexpected docker error occurred: {0}'.format(to_native(e)), exception=traceback.format_exc())
     except RequestException as e:
         client.fail(
-            'An unexpected requests error occurred when docker-py tried to talk to the docker daemon: {0}'.format(to_native(e)),
+            'An unexpected requests error occurred when Docker SDK for Python tried to talk to the docker daemon: {0}'.format(to_native(e)),
             exception=traceback.format_exc())
 
 

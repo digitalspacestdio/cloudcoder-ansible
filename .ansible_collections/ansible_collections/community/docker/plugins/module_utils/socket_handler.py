@@ -1,5 +1,6 @@
 # Copyright (c) 2019-2021, Felix Fontein <felix@fontein.de>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
@@ -10,7 +11,7 @@ import os.path
 import socket as pysocket
 
 from ansible.module_utils.basic import missing_required_lib
-from ansible.module_utils.six import PY3
+from ansible.module_utils.six import PY2
 
 try:
     from docker.utils import socket as docker_socket
@@ -89,7 +90,7 @@ class DockerSocketHandlerBase(object):
                     return
                 else:
                     raise
-        elif PY3 and isinstance(self._sock, getattr(pysocket, 'SocketIO')):
+        elif not PY2 and isinstance(self._sock, getattr(pysocket, 'SocketIO')):
             data = self._sock.read()
         else:
             data = os.read(self._sock.fileno())
@@ -139,7 +140,7 @@ class DockerSocketHandlerBase(object):
 
     def select(self, timeout=None, _internal_recursion=False):
         if not _internal_recursion and self._paramiko_read_workaround and len(self._write_buffer) > 0:
-            # When the SSH transport is used, docker-py internally uses Paramiko, whose
+            # When the SSH transport is used, Docker SDK for Python internally uses Paramiko, whose
             # Channel object supports select(), but only for reading
             # (https://github.com/paramiko/paramiko/issues/695).
             if self._sock.send_ready():
@@ -208,25 +209,3 @@ class DockerSocketHandlerBase(object):
 class DockerSocketHandlerModule(DockerSocketHandlerBase):
     def __init__(self, sock, module, selectors):
         super(DockerSocketHandlerModule, self).__init__(sock, selectors, module.debug)
-
-
-def find_selectors(module):
-    try:
-        # ansible-base 2.10+ has selectors a compat version of selectors, which a bundled fallback:
-        from ansible.module_utils.compat import selectors
-        return selectors
-    except ImportError:
-        pass
-    try:
-        # Python 3.4+
-        import selectors
-        return selectors
-    except ImportError:
-        pass
-    try:
-        # backport package installed in the system
-        import selectors2
-        return selectors2
-    except ImportError:
-        pass
-    module.fail_json(msg=missing_required_lib('selectors2', reason='for handling stdin'))

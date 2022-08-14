@@ -1,7 +1,13 @@
+<!--
+Copyright (c) Ansible Project
+GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 # Docker Community Collection
 
 [![Doc](https://img.shields.io/badge/docs-brightgreen.svg)](https://docs.ansible.com/ansible/latest/collections/community/docker/)
-[![Build Status](https://dev.azure.com/ansible/community.docker/_apis/build/status/CI?branchName=stable-2)](https://dev.azure.com/ansible/community.docker/_build?definitionId=25)
+[![Build Status](https://dev.azure.com/ansible/community.docker/_apis/build/status/CI?branchName=main)](https://dev.azure.com/ansible/community.docker/_build?definitionId=25)
 [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.docker)](https://codecov.io/gh/ansible-collections/community.docker)
 
 This repo contains the `community.docker` Ansible Collection. The collection includes many modules and plugins to work with Docker.
@@ -10,23 +16,32 @@ Please note that this collection does **not** support Windows targets. The conne
 
 ## Tested with Ansible
 
-Tested with the current Ansible 2.9, ansible-base 2.10, ansible-core 2.11, ansible-core 2.12 and ansible-core 2.13 releases and the current development version of ansible-core. Ansible versions before 2.9.10 are not supported.
+Tested with the current ansible-core 2.11, ansible-core 2.12, and ansible-core 2.13 releases, and the current development version of ansible-core. Ansible/ansible-base versions before 2.11.0 are not supported.
 
-Please note that support for Ansible 2.9 and ansible-base 2.10 has been deprecated and will be dropped from community.docker 3.0.0 on.
+Please note that Ansible 2.9 and ansible-base 2.10 are no longer supported. If you need to use them, use community.docker 2.x.y. Also note that this collection does not work with ansible-core 2.11 (this includes ansible-base and Ansible 2.9) on Python 2.12+.
 
 ## External requirements
 
-Most modules and plugins require the [Docker SDK for Python](https://pypi.org/project/docker/). For Python 2.6 support, use [the deprecated docker-py library](https://pypi.org/project/docker-py/) instead.
+Some modules and plugins require Docker CLI, or other external, programs. Some require the [Docker SDK for Python](https://pypi.org/project/docker/) and some use [requests](https://pypi.org/project/requests/) to directly communicate with the Docker daemon API. All modules and plugins require Python 2.7 or later. Python 2.6 is no longer supported; use community.docker 2.x.y if you need to use Python 2.6.
 
-Please note that Python 2.6 support has been deprecated and will be dropped from community.docker 3.0.0 on.
+Installing the Docker SDK for Python also installs the requirements for the modules and plugins that use `requests`. If you want to directly install the Python libraries instead of the SDK, you need the following ones:
 
-Both libraries cannot be installed at the same time. If you accidentally did install them simultaneously, you have to uninstall *both* before re-installing one of them.
+- [requests](https://pypi.org/project/requests/);
+- [pywin32](https://pypi.org/project/pywin32/) when using named pipes on Windows with the Windows 32 API;
+- [paramiko](https://pypi.org/project/paramiko/) when using SSH to connect to the Docker daemon with `use_ssh_client=false`;
+- [pyOpenSSL](https://pypi.org/project/pyOpenSSL/) when using TLS to connect to the Docker daemon;
+- [backports.ssl_match_hostname](https://pypi.org/project/backports.ssl_match_hostname/) when using TLS to connect to the Docker daemon on Python 2.
+
+If you have Docker SDK for Python < 2.0.0 installed ([docker-py](https://pypi.org/project/docker-py/)), you can still use it for modules that support it, though we recommend to uninstall it and then install [docker](https://pypi.org/project/docker/), the Docker SDK for Python >= 2.0.0. Note that both libraries cannot be installed at the same time. If you accidentally did install them simultaneously, you have to uninstall *both* before re-installing one of them.
 
 ## Included content
 
 * Connection plugins:
-  - community.docker.docker: use Docker containers as remotes
+  - community.docker.docker: use Docker containers as remotes using the Docker CLI program
+  - community.docker.docker_api: use Docker containers as remotes using the Docker API
+  - community.docker.nsenter: execute commands on the host running the controller container
 * Inventory plugins:
+  - community.docker.docker_containers: dynamic inventory plugin for Docker containers
   - community.docker.docker_machine: collect Docker machines as inventory
   - community.docker.docker_swarm: collect Docker Swarm nodes as inventory
 * Modules:
@@ -86,7 +101,7 @@ You can find more information in the [developer guide for collections](https://d
 
 ## Release notes
 
-See the [changelog](https://github.com/ansible-collections/community.docker/tree/stable-2/CHANGELOG.rst).
+See the [changelog](https://github.com/ansible-collections/community.docker/tree/main/CHANGELOG.rst).
 
 ## More information
 
@@ -100,6 +115,10 @@ See the [changelog](https://github.com/ansible-collections/community.docker/tree
 
 ## Licensing
 
-GNU General Public License v3.0 or later.
+This collection is primarily licensed and distributed as a whole under the GNU General Public License v3.0 or later.
 
-See [COPYING](https://www.gnu.org/licenses/gpl-3.0.txt) to see the full text.
+See [LICENSES/GPL-3.0-or-later.txt](https://github.com/ansible-collections/community.docker/blob/main/COPYING) for the full text.
+
+Parts of the collection are licensed under the [Apache 2.0 license](https://github.com/ansible-collections/community.docker/blob/main/LICENSES/Apache-2.0.txt). This mostly applies to files vendored from the [Docker SDK for Python](https://github.com/docker/docker-py/).
+
+Most files in the collection that are not automatically generated have a machine readable `SDPX-License-Identifier:` comment denoting its respective license(s).
