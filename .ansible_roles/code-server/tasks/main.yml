@@ -19,8 +19,15 @@
   register: systemctl_version
   changed_when: no
 
+- name: Add the user '{{ code_server_user }}'
+  become: true
+  user:
+    name: "{{ code_server_user }}"
+  register: code_server_user_info
+  when: code_server_user != "root"
+
 - name: Create {{ code_server_service_dir }}
-  become: yes
+  become: true
   file:
     state: directory
     path: "{{ code_server_service_dir }}"
@@ -35,10 +42,10 @@
 - import_tasks: install-code-server.yml
   when: code_server_major|int >= 3
 
-- import_tasks: install-code-server-service.yml
-
 - name: Configure code-server
   include_tasks: configure-code-server.yml
+
+- import_tasks: install-code-server-service.yml
 
 - name: Configure service
   set_fact:
@@ -50,10 +57,22 @@
   meta: flush_handlers
 
 - name: Enable code-server service
-  become: yes
+  become: true
   systemd:
     name: code-server
-    enabled: yes
+    enabled: true
+  when: code_server_user == "root"
+  tags:
+    - service
+
+- name: Enable code-server service
+  become: true
+  become_user: "{{ code_server_user }}"
+  systemd:
+    name: code-server
+    enabled: true
+    scope: user
+  when: code_server_user != "root"
   tags:
     - service
 

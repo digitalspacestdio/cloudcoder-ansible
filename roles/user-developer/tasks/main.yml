@@ -39,14 +39,7 @@
   set_fact:
     service_restarted: "{{ service_restarted + [ 'sshd' ] }}"
 
-- name: Installing git-ssh
-  copy:
-    src: files/bin/git-ssh
-    dest: /usr/local/bin/git-ssh
-    owner: root
-    mode: u=rwx,g=rx,o=rx
-
-- name: Ensure ownerships
+- name: "Ensure ownerships"
   file:
     dest: "{{ developer_user_info.home }}"
     owner: "{{ developer_username }}"

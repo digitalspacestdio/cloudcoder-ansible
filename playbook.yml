@@ -64,6 +64,7 @@
       code_server_proxy_domain: "{{ traefik_hostname }}"
       code_server_env:
         VSCODE_FORCE_USER_ENV: "1"
+        SHELL: /usr/bin/zsh
       tags:
         - code-server
 

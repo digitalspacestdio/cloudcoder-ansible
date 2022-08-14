@@ -1,14 +1,14 @@
-- name: Create code-server data dir
+- name: "Ensure code-server data dir: {{ code_server_data_dir }}"
   file:
     path: "{{ code_server_data_dir }}"
-    
     state: directory
+    owner: "{{ code_server_user }}"
     mode: 0755
 
-- name: Copy code-server env file
+- name: "Ensure code-server env file: {{ code_server_data_dir }}/env"
   template:
     src: env
-    dest: "{{ code_server_data_dir }}"
+    dest: "{{ code_server_data_dir }}/env"
     mode: 0600
     owner:  "{{ code_server_user }}"
   notify: Restart code-server
@@ -19,4 +19,4 @@
   - import_tasks: copy-certs.yml
   rescue:
   - import_tasks: copy-certs.yml
-    become: yes
+    become: true

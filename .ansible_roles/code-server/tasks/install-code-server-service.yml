@@ -1,14 +1,61 @@
+
 - name: Copy code-server systemd unit file
-  become: yes
+  become: true
   template:
     src: code-server.service
     dest: "{{ code_server_service_dir }}"
     mode: 0644
+  when: code_server_user == "root"
   notify: Restart code-server
 
+- name: ensure "{{ code_server_user }}" is lingering
+  become: true
+  ansible.builtin.stat:
+    path: "/var/lib/systemd/linger/{{ code_server_user }}"
+  register: code_server_user_lingering
+  tags:
+    - user
+    - systemd
+  when: code_server_user != "root"
+
+- name: Create "{{ code_server_user }}" systemd config dir
+  become: true
+  become_user: "{{ code_server_user }}"
+  ansible.builtin.file:
+    path: "{{ code_server_user_info.home }}/.config/systemd/user"
+    state: directory
+    mode: "0700"
+  when: code_server_user != "root"
+
+- set_fact:
+    code_server_user_port: "{{ code_server_user_info.uid % 1000 + 7000 }}"
+  when: code_server_user != "root"
+
+- name: add code-server systemd service
+  become: true
+  become_user: "{{ code_server_user }}"
+  ansible.builtin.template:
+    src: code-server.user.service
+    dest: "{{ code_server_user_info.home }}/.config/systemd/user/code-server.service"
+    backup: 'yes'
+    mode: 0600
+  when: code_server_user != "root"
+
+- name: enable and start code-server
+  become: true
+  become_user: "{{ code_server_user }}"
+  ansible.builtin.systemd:
+    name: code-server.service
+    enabled: 'yes'
+    state: restarted
+    scope: user
+    daemon_reload: 'yes'
+  when: code_server_user != "root"
+
 - name: Copy code-server systemd override file
-  become: yes
+  become: true
   file:
     path: "{{ code_server_service_dir }}/code-server.service.d/restart.conf"
     state: absent
   notify: Restart code-server
+

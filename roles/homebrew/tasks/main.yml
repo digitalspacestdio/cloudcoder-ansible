@@ -20,16 +20,74 @@
   become_user: "{{ developer_username }}"
   when: not stat_home_linuxbrew.stat.exists
 
-- name: Configure profile
+- name: Configure profiles
   become: true
   lineinfile:
     create: yes
-    dest: '/home/{{ developer_username }}/.profile'
+    dest: '{{ developer_user_info.home }}/{{item}}'
     line: 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+  with_items: ['.zprofile', '.profile']
 
-- name: Configure profile
+- name: "Ensure git-ssh"
+  command: runuser -l {{ developer_username }} -c "brew install digitalspacestdio/git-ssh/git-ssh"
   become: true
-  lineinfile:
-    create: yes
-    dest: '/home/{{ developer_username }}/.zprofile'
-    line: 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+
+- name: "Ensure nvm"
+  command: runuser -l {{ developer_username }} -c "brew install nvm"
+  become: true
+
+- name: "Updating profiles"
+  blockinfile:
+    dest: '{{ developer_user_info.home }}/{{item}}'
+    marker: "# {mark} nvm"
+    block: |
+      export NVM_DIR="$HOME/.nvm"
+      brew_install_path=$(brew --prefix)
+      [ -s "${brew_install_path}/opt/nvm/nvm.sh" ] && . "${brew_install_path}/opt/nvm/nvm.sh"  # This loads nvm
+      [ -s "${brew_install_path}/opt/nvm/etc/bash_completion.d/nvm" ] && . "${brew_install_path}/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+  with_items: ['.zprofile', '.profile']
+  become: true
+  become_user: "{{ developer_username }}"
+
+- name: "Ensure SDKMAN"
+  shell: 'curl -s "https://get.sdkman.io" | bash'
+  become: true
+  become_user: "{{ developer_username }}"
+    
+- name: "Adding SDKMAN to profiles"
+  blockinfile:
+    dest: '{{ developer_user_info.home }}/{{item}}'
+    marker: "# {mark} sdkman"
+    block: |
+      source "$HOME/.sdkman/bin/sdkman-init.sh"
+  with_items: ['.zprofile', '.profile']
+
+- name: "Installing golang"
+  shell: runuser -l {{ developer_username }} -c "brew install go"
+  become: true
+    
+- name: "Adding GOPATH to profiles"
+  blockinfile:
+    dest: '{{ developer_user_info.home }}/{{item}}'
+    marker: "# {mark} golang"
+    block: |
+      export GOPATH="${HOME}/go"
+      export PATH="${PATH}:${GOPATH}/bin"
+  with_items: ['.zprofile', '.profile']
+  become: true
+  become_user: "{{ developer_username }}"
+
+- name: "Installing jenv"
+  shell: runuser -l {{ developer_username }} -c "brew install jenv"
+  become: true
+    
+- name: "Adding jenv to profiles"
+  blockinfile:
+    dest: '{{ developer_user_info.home }}/{{item}}'
+    marker: "# {mark} jenv"
+    block: |
+      export PATH="$HOME/.jenv/bin:$PATH"
+      if which jenv > /dev/null; then eval "$(jenv init -)"; fi
+  with_items: ['.zprofile', '.profile']
+  become: true
+  become_user: "{{ developer_username }}"

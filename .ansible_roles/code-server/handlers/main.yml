@@ -1,6 +1,6 @@
 ---
 - name: Restart code-server
-  become: yes
+  become: true
   systemd:
     daemon-reload: yes
     name: code-server
@@ -8,4 +8,17 @@
     # We mark the service as Type=notify to auto restart it routinely,
     # but it's actually Type=simple, so "no_block: yes" here to avoid stuck.
     no_block: yes
-  when: code_server_configure_service
+  when: code_server_configure_service and code_server_user == "root"
+
+- name: Restart code-server user
+  become: true
+  become_user: "{{ code_server_user }}"
+  systemd:
+    daemon-reload: yes
+    name: code-server
+    state: restarted
+    scope: user
+    # We mark the service as Type=notify to auto restart it routinely,
+    # but it's actually Type=simple, so "no_block: yes" here to avoid stuck.
+    no_block: yes
+  when: code_server_configure_service and code_server_user != "root"

@@ -43,7 +43,7 @@
 #   stat:
 #     path: /home/{{ developer_username }}/.zshrc
 #   register: stat_rc_result
-#   become: yes
+#   become: true
 #   become_user: "{{ developer_username }}"
 #   when: developer_username is defined
 
@@ -51,7 +51,7 @@
   stat:
     path: /home/{{ developer_username }}/.oh-my-zsh
   register: stat_oh_my_zsh_result
-  become: yes
+  become: true
   become_user: "{{ developer_username }}"
   when: developer_username is defined
 
@@ -60,7 +60,7 @@
     repo: https://github.com/robbyrussell/oh-my-zsh
     dest: /home/{{ developer_username }}/.oh-my-zsh
   when: not stat_oh_my_zsh_result.stat.exists and developer_username is defined
-  become: yes
+  become: true
   become_user: "{{ developer_username }}"
 
 - name: Creating new /home/{{ developer_username }}/.zshrc
@@ -70,14 +70,14 @@
     remote_src: true
   #when: not stat_rc_result.stat.exists and developer_username is defined
   when: developer_username is defined
-  become: yes
+  become: true
   become_user: "{{ developer_username }}"
 
 - name: "Configure theme {{ developer_username }}"
   shell: echo $(hostname -f) > /home/{{ developer_username }}/.box-name
   args:
     executable: /bin/bash
-  become: yes
+  become: true
   become_user: "{{ developer_username }}"
   when: developer_username is defined
 
@@ -87,6 +87,6 @@
     state: present
     regexp: '^ZSH_THEME='
     line: 'ZSH_THEME="fino-time"'
-  become: yes
+  become: true
   become_user: "{{ developer_username }}"
   when: developer_username is defined
