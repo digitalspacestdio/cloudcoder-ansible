@@ -1,4 +1,12 @@
 ---
+- name: Configure max_user_watches
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_watches
+    value: '524288'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
 - name: Check usage of deprecated role variables
   include_tasks: deprecate.yml
   when: >
@@ -24,6 +32,16 @@
   user:
     name: "{{ code_server_user }}"
   register: code_server_user_info
+  when: code_server_user != "root"
+
+- name: "Ensure {{ code_server_user }} is lingering"
+  become: true
+  ansible.builtin.stat:
+    path: "/var/lib/systemd/linger/{{ code_server_user }}"
+  register: code_server_user_lingering
+  tags:
+    - user
+    - systemd
   when: code_server_user != "root"
 
 - name: "Determine XDG_RUNTIME_DIR"
@@ -80,7 +98,7 @@
     name: code-server
     enabled: true
     state: started
-    scope: user
+    user: true
   environment:
     XDG_RUNTIME_DIR: "{{ xdg_runtime_dir }}"
   when: code_server_user != "root"

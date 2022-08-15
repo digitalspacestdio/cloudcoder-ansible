@@ -8,16 +8,6 @@
   when: code_server_user == "root"
   notify: Restart code-server
 
-- name: ensure "{{ code_server_user }}" is lingering
-  become: true
-  ansible.builtin.stat:
-    path: "/var/lib/systemd/linger/{{ code_server_user }}"
-  register: code_server_user_lingering
-  tags:
-    - user
-    - systemd
-  when: code_server_user != "root"
-
 - name: Create "{{ code_server_user }}" systemd config dir
   become: true
   become_user: "{{ code_server_user }}"
