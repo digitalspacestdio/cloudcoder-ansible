@@ -45,15 +45,17 @@
         - user-developer
 
     - role: docker
+      docker_users:
+        -  "{{ developer_username }}"
       tags: 
         - docker
 
-    - role: docker-rootless
-      docker_user: "{{ developer_username }}"
-      docker_rootful: "yes"
-      docker_rootful_enabled: "yes"
-      tags: 
-        - docker-rootless
+    # - role: docker-rootless
+    #   docker_user: "{{ developer_username }}"
+    #   docker_rootful: "yes"
+    #   docker_rootful_enabled: "yes"
+    #   tags: 
+    #     - docker-rootless
 
     - role: code-server
       code_server_data_dir: "{{ developer_user_info.home }}/.local/share/code-server"

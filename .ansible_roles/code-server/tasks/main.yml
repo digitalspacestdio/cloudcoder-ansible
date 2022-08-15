@@ -26,6 +26,11 @@
   register: code_server_user_info
   when: code_server_user != "root"
 
+- name: "Determine XDG_RUNTIME_DIR"
+  set_fact:
+    xdg_runtime_dir: "/run/user/{{ code_server_user_info.uid }}"
+  changed_when: false
+
 - name: Create {{ code_server_service_dir }}
   become: true
   file:
@@ -59,19 +64,25 @@
 - name: Enable code-server service
   become: true
   systemd:
+    daemon-reload: yes
     name: code-server
     enabled: true
+    state: started
   when: code_server_user == "root"
   tags:
     - service
 
-- name: Enable code-server service
+- name: Enable code-server service (rootless)
   become: true
   become_user: "{{ code_server_user }}"
   systemd:
+    daemon-reload: yes
     name: code-server
     enabled: true
+    state: started
     scope: user
+  environment:
+    XDG_RUNTIME_DIR: "{{ xdg_runtime_dir }}"
   when: code_server_user != "root"
   tags:
     - service

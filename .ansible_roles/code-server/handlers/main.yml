@@ -10,9 +10,11 @@
     no_block: yes
   when: code_server_configure_service and code_server_user == "root"
 
-- name: Restart code-server user
+- name: Restart user code-server
   become: true
   become_user: "{{ code_server_user }}"
+  environment:
+    XDG_RUNTIME_DIR: "{{ xdg_runtime_dir }}"
   systemd:
     daemon-reload: yes
     name: code-server
