@@ -44,6 +44,14 @@
     - systemd
   when: code_server_user != "root"
 
+- name: "Ensure lingering for {{ code_server_user }}"
+  become: true
+  ansible.builtin.command: "loginctl enable-linger {{ code_server_user }}"
+  when: not code_server_user_lingering.stat.exists
+  tags:
+    - user
+    - systemd
+
 - name: "Determine XDG_RUNTIME_DIR"
   set_fact:
     xdg_runtime_dir: "/run/user/{{ code_server_user_info.uid }}"
