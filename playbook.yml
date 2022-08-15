@@ -57,6 +57,10 @@
     #   tags: 
     #     - docker-rootless
 
+    - role: roles/homebrew
+      tags:
+        - homebrew
+
     - role: code-server
       code_server_data_dir: "{{ developer_user_info.home }}/.local/share/code-server"
       code_server_user: "{{ developer_username }}"
@@ -73,10 +77,6 @@
     - role: roles/traefik
       tags:
         - traefik
-
-    - role: roles/homebrew
-      tags:
-        - homebrew
 
   post_tasks:
     - name: Populate service facts
