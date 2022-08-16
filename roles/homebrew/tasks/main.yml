@@ -95,3 +95,9 @@
   with_items: ['.zprofile', '.profile']
   become: true
   become_user: "{{ developer_username }}"
+
+- name: "Installing additional packages"
+  shell: runuser -l {{ developer_username }} -c "brew install {{ item }}"
+  become: true
+  with_items: 
+    - hadolint
