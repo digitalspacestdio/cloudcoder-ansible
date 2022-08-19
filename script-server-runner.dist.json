@@ -1,0 +1,49 @@
+{
+    "name": "Configure CloudCoder VM",
+    "description": "run ansible to provistion you machine",
+    "script_path": "/app/scripts/cloudcoder-run.sh",
+    "parameters": [
+        {
+            "name": "SSH Public Key",
+            "description": "ssh-rsa PUTYOURKEYHERE"
+        },
+        {
+            "name": "IP Address",
+            "env_var": "IP_ADDRESS",
+            "type": "ip",
+            "required": true
+        },
+        {
+            "name": "Ansible User",
+            "param": "ANSIBLE_USER",
+            "type": "text",
+            "required": true
+        },
+        {
+            "name": "Public Hostname",
+            "env_var": "TRAEFIK_HOSTNAME",
+            "type": "text",
+            "required": true
+        },
+        {
+            "name": "Acme Provider",
+            "env_var": "TRAEFIK_ACME_PROVIDER",
+            "type": "list",
+            "values": { "None": "", "DigitalOcean": "digitalpcean", "CloudFlare": "cloudflare" },
+            "required": false
+        },
+        {
+            "name": "Acme Email",
+            "env_var": "TRAEFIK_ACME_EMAIL",
+            "type": "text",
+            "required": false
+        },
+        {
+            "name": "Acme Token",
+            "env_var": "TRAEFIK_ACME_TOKEN",
+            "type": "text",
+            "required": false,
+            "secure": true
+        }
+    ]
+  }
