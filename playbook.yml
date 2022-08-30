@@ -26,6 +26,19 @@
       setup:
       tags: 
         - always
+    - name: Lookup traefik_hostname
+      shell: hostname -s
+      register: traefik_hostname_output
+      when: traefik_hostname == ""
+      tags: 
+        - always
+
+    - name: Set fact traefik_hostname
+      set_fact:
+        traefik_hostname: "{{ traefik_hostname_output.stdout }}"
+      when: traefik_hostname == ""
+      tags: 
+        - always
 
   roles:
     - role: roles/swap
@@ -68,7 +81,7 @@
       code_server_host: "{{ vscode_bind_address }}"
       code_server_port: "{{ vscode_bind_port }}"
       code_server_password: "{{ vscode_password }}"
-      code_server_proxy_domain: "{{ traefik_hostname }}"
+      code_server_proxy_domain: "{{ traefik_hostname }}.{{ traefik_domain }}"
       code_server_env:
         VSCODE_FORCE_USER_ENV: "1"
         SHELL: /usr/bin/zsh
