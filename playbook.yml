@@ -26,7 +26,7 @@
       setup:
       tags: 
         - always
-  tasks:
+
     - name: Lookup traefik_hostname
       shell: hostname -s
       register: traefik_hostname_output
