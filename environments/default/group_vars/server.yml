@@ -13,3 +13,4 @@ traefik_log_level: "{{ lookup('env', 'TRAEFIK_LOG_LEVEL') | default('WARNING', T
 vscode_bind_address: "{{ lookup('env', 'VSCODE_BIND_ADDRESS') | default('127.0.0.1', True) }}"
 vscode_bind_port: "{{ lookup('env', 'VSCODE_BIND_PORT') | default('7999', True) }}"
 vscode_password: "{{ lookup('env', 'VSCODE_POSSWORD') | default('$ecretPassw0rd', True) }}"
+github_oauth_token: "{{ lookup('env', 'GITHUB_OAUTH_TOKEN') | default('', True) }}"
