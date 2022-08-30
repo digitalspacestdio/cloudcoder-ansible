@@ -1,7 +1,7 @@
 ---
 - name: Set fact traefik_hostname {{ inventory_hostname_short }}
   set_fact:
-    traefik_hostname: "{{ inventory_hostname_short }}"
+    traefik_hostname: "{{ node_hostname_short }}"
   when: traefik_hostname is not defined or traefik_hostname == ""
 
 - name: Determine public ip

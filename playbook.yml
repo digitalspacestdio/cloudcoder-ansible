@@ -27,9 +27,16 @@
       tags: 
         - always
 
-    - name: Print all available facts
-      debug:
-        var: ansible_facts
+    - name: Lookup traefik_hostname
+      shell:
+        hostname -s
+      register: node_hostname_short_output
+      tags: 
+        - always
+
+    - name: Set fact node_hostname_short
+      set_fact:
+        node_hostname_short: "{{ node_hostname_short_output.stdout }}"
       tags: 
         - always
 
@@ -74,7 +81,7 @@
       code_server_host: "{{ vscode_bind_address }}"
       code_server_port: "{{ vscode_bind_port }}"
       code_server_password: "{{ vscode_password }}"
-      code_server_proxy_domain: "{{ traefik_hostname | default(inventory_hostname_short) }}.{{ traefik_domain }}"
+      code_server_proxy_domain: "{{ traefik_hostname | default(node_hostname_short) }}.{{ traefik_domain }}"
       code_server_env:
         VSCODE_FORCE_USER_ENV: "1"
         SHELL: /usr/bin/zsh
