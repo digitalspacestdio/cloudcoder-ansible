@@ -102,7 +102,6 @@
   become: true
   become_user: "{{ code_server_user }}"
   systemd:
-    daemon-reload: yes
     name: code-server
     enabled: true
     state: started
