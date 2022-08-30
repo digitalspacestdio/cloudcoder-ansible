@@ -26,6 +26,7 @@
       setup:
       tags: 
         - always
+  tasks:
     - name: Lookup traefik_hostname
       shell: hostname -s
       register: traefik_hostname_output
@@ -33,7 +34,7 @@
       tags: 
         - always
 
-    - name: Set fact traefik_hostname
+    - name: Set fact traefik_hostname {{ traefik_hostname_output.stdout }}
       set_fact:
         traefik_hostname: "{{ traefik_hostname_output.stdout }}"
       when: traefik_hostname == ""
