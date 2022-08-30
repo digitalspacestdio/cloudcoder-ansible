@@ -1,4 +1,9 @@
 ---
+- name: Set fact traefik_hostname {{ inventory_hostname_short }}
+  set_fact:
+    traefik_hostname: "{{ inventory_hostname_short }}"
+  when: traefik_hostname is not defined or traefik_hostname == ""
+
 - name: Determine public ip
   shell:
     ip route get 8.8.8.8 | head -n1 | grep 'src [0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+' -o | awk '{print $2}'
