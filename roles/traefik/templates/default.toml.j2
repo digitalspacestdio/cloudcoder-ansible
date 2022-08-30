@@ -1,6 +1,6 @@
 [http.routers]
     [http.routers.default]
-    rule = "HostRegexp(`{{ traefik_hostname }}`, `{subdomain:[a-z0-9-_]+}.{{ traefik_hostname }}`)"
+    rule = "HostRegexp(`{{ traefik_hostname }}.{{ traefik_domain }}`, `{subdomain:[a-z0-9-_]+}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
     service = "default"
     entryPoints = ["default"]
 
@@ -8,8 +8,8 @@
     [http.routers.default.tls]
     certResolver = "default"    
     [[http.routers.default.tls.domains]]
-    main = "*.{{ traefik_hostname }}"
-    sans = "{{ traefik_hostname }}"
+    main = "*.{{ traefik_hostname }}.{{ traefik_domain }}"
+    sans = "{{ traefik_hostname }}.{{ traefik_domain }}"
 {% endif %}
 
 [http.middlewares]

@@ -26,7 +26,7 @@
 
 [certificatesResolvers.default.acme]
   email = "{{ traefik_acme_email }}"
-  storage = "/etc/traefik/acme/{{ traefik_hostname }}.json"
+  storage = "/etc/traefik/acme/{{ traefik_hostname }}.{{ traefik_domain }}.json"
 {% endif %}
 
 {% if traefik_acme_provider is defined and traefik_acme_provider != "" and traefik_acme_provider == "http" %}

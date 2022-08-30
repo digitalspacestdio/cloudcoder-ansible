@@ -1,6 +1,6 @@
 [http.routers]
   [http.routers.traefik]
-  rule = "Host(`traefik.{{ traefik_hostname }}`) && PathPrefix(`/`)"
+  rule = "Host(`traefik.{{ traefik_hostname }}.{{ traefik_domain }}`) && PathPrefix(`/`)"
   service = "dashboard@internal"
   entryPoints = ["default"]
 
@@ -8,5 +8,5 @@
     [http.routers.traefik.tls]
     certResolver = "default"    
     [[http.routers.traefik.tls.domains]]
-    main = "traefik.{{ traefik_hostname }}"
+    main = "traefik.{{ traefik_hostname }}.{{ traefik_domain }}"
 {% endif %}

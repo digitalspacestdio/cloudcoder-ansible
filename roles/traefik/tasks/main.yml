@@ -8,6 +8,17 @@
   set_fact:
     public_ip: "{{ public_ip_result.stdout }}"
 
+- name: Lookup traefik_hostname
+  shell:
+    hostname -s
+  register: traefik_hostname_output
+  when: traefik_hostname == ""
+
+- name: Set fact traefik_hostname
+  set_fact:
+    traefik_hostname: "{{ traefik_hostname_output.stdout }}"
+  when: traefik_hostname == ""
+
 - shell: "getent passwd '{{ traefik_username }}' | cut -d: -f1 | tr -d '\n'"
   register: unix_user_traefik
 

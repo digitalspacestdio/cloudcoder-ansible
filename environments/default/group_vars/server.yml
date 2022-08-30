@@ -3,7 +3,8 @@ developer_uid: "{{ lookup('env', 'USER_DEVELOPER_UID') | default('1000', True) }
 developer_password: "{{ lookup('env', 'USER_DEVELOPER_PASSWORD') | default('', True) }}"
 developer_github_accounts: []
 developer_authorized_keys: []
-traefik_hostname: "{{ lookup('env', 'TRAEFIK_HOSTNAME') | default('example.com', True) }}"
+traefik_hostname: "{{ lookup('env', 'TRAEFIK_HOSTNAME') | default('', True) }}"
+traefik_domain: "{{ lookup('env', 'TRAEFIK_DOMAIN') | default('example.com', True) }}"
 traefik_acme_provider: "{{ lookup('env', 'TRAEFIK_ACME_PROVIDER') | default('', True) }}"
 traefik_acme_email: "{{ lookup('env', 'TRAEFIK_ACME_EMAIL') | default('adm@example.com', True) }}"
 traefik_acme_token: "{{ lookup('env', 'TRAEFIK_ACME_TOKEN') }}"
