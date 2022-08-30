@@ -27,6 +27,12 @@
       tags: 
         - always
 
+    - name: Print all available facts
+      debug:
+        var: ansible_facts
+      tags: 
+        - always
+
   roles:
     - role: roles/swap
       tags: 
