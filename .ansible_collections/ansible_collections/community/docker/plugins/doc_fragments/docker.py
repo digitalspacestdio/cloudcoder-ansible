@@ -201,9 +201,7 @@ options:
             - When verifying the authenticity of the Docker Host server, provide the expected name of the server.
             - If the value is not specified in the task, the value of environment variable C(DOCKER_TLS_HOSTNAME) will
               be used instead. If the environment variable is not set, the default value will be used.
-            - The current default value is C(localhost). This default is deprecated and will change in community.docker
-              2.0.0 to be a value computed from I(docker_host). Explicitly specify C(localhost) to make sure this value
-              will still be used, and to disable the deprecation message which will be shown otherwise.
+            - Note that this option had a default value C(localhost) in older versions. It was removed in community.docker 3.0.0.
         type: str
     api_version:
         description:
@@ -288,7 +286,7 @@ notes:
 #    In general, it will use C($HOME/.docker/config.json) if the C(DOCKER_CONFIG) environment variable is not specified,
 #    and use C($DOCKER_CONFIG/config.json) otherwise.
   - This module does B(not) use the L(Docker SDK for Python,https://docker-py.readthedocs.io/en/stable/) to
-    communicate with the Docker daemon. It uses code derived from the Docker SDK or Python hat is included in this
+    communicate with the Docker daemon. It uses code derived from the Docker SDK or Python that is included in this
     collection.
 requirements:
   - requests

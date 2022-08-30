@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright: (c) 2016, Abdoul Bah (@helldorado) <bahabdoul at gmail.com>
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# Copyright (c) 2016, Abdoul Bah (@helldorado) <bahabdoul at gmail.com>
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -24,7 +25,9 @@ options:
   agent:
     description:
       - Specify if the QEMU Guest Agent should be enabled/disabled.
-    type: bool
+      - Since community.general 5.5.0, this can also be a string instead of a boolean.
+        This allows to specify values such as C(enabled=1,fstrim_cloned_disks=1).
+    type: str
   args:
     description:
       - Pass arbitrary arguments to kvm.
@@ -808,6 +811,7 @@ from ansible_collections.community.general.plugins.module_utils.proxmox import (
 
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib
 from ansible.module_utils.common.text.converters import to_native
+from ansible.module_utils.parsing.convert_bool import boolean
 
 
 def parse_mac(netstr):
@@ -959,7 +963,14 @@ class ProxmoxKvmAnsible(ProxmoxAnsible):
                 kwargs.update(kwargs[k])
                 del kwargs[k]
 
-        # Rename numa_enabled to numa. According the API documentation
+        try:
+            # The API also allows booleans instead of e.g. `enabled=1` for backward-compatibility.
+            kwargs['agent'] = boolean(kwargs['agent'], strict=True)
+        except TypeError:
+            # Not something that Ansible would parse as a boolean.
+            pass
+
+        # Rename numa_enabled to numa, according the API documentation
         if 'numa_enabled' in kwargs:
             kwargs['numa'] = kwargs['numa_enabled']
             del kwargs['numa_enabled']
@@ -1039,7 +1050,7 @@ def main():
     module_args = proxmox_auth_argument_spec()
     kvm_args = dict(
         acpi=dict(type='bool'),
-        agent=dict(type='bool'),
+        agent=dict(type='str'),
         args=dict(type='str'),
         autostart=dict(type='bool'),
         balloon=dict(type='int'),
@@ -1233,7 +1244,7 @@ def main():
                 module.exit_json(changed=False, vmid=vmid, msg="VM with vmid <%s> already exists" % vmid)
             elif proxmox.get_vmid(name, ignore_missing=True) and not (update or clone):
                 module.exit_json(changed=False, vmid=proxmox.get_vmid(name), msg="VM with name <%s> already exists" % name)
-            elif not (node, name):
+            elif (not node) or (not name):
                 module.fail_json(msg='node, name is mandatory for creating/updating vm')
             elif not proxmox.get_node(node):
                 module.fail_json(msg="node '%s' does not exist in cluster" % node)

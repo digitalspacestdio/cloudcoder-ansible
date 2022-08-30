@@ -5,6 +5,32 @@ Docker Community Collection Release Notes
 .. contents:: Topics
 
 
+v3.0.2
+======
+
+Release Summary
+---------------
+
+Bugfix release.
+
+Bugfixes
+--------
+
+- docker_image - fix build argument handling (https://github.com/ansible-collections/community.docker/issues/455, https://github.com/ansible-collections/community.docker/pull/456).
+
+v3.0.1
+======
+
+Release Summary
+---------------
+
+Bugfix release.
+
+Bugfixes
+--------
+
+- docker_container - fix handling of ``env_file`` (https://github.com/ansible-collections/community.docker/issues/451, https://github.com/ansible-collections/community.docker/pull/452).
+
 v3.0.0
 ======
 
