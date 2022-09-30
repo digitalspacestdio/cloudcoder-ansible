@@ -1,7 +1,7 @@
 ---
 - name: Check if homebrew directory exists
   stat:
-    path: "/home/linuxbrew"
+    path: "/home/linuxbrew/.linuxbrew"
   register: stat_home_linuxbrew
 
 - name: create homebrew directory
@@ -13,12 +13,54 @@
     mode: 0700
   when: not stat_home_linuxbrew.stat.exists
 
+# - name: install homebrew
+#   shell: |
+#     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#   become: true
+#   become_user: "{{ developer_username }}"
+#   when: not stat_home_linuxbrew.stat.exists
+
+- name: get homebrew version
+  shell: "echo $(curl -H 'Authorization: {{ github_oauth_token }}' -L --silent https://api.github.com/repos/Homebrew/brew/releases | jq -r '.[].tag_name' | grep -v '\\-rc[0-9]*' | head -1)"
+  register: homebrew_version_output
+
 - name: install homebrew
   shell: |
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    export DEBIAN_FRONTEND=noninteractive
+    export BREW_VERSION="{{ homebrew_version_output.stdout }}"
+    git clone --branch ${BREW_VERSION} --single-branch --depth 1 https://github.com/Homebrew/brew /home/linuxbrew/.linuxbrew/Homebrew \
+    && mkdir -p /home/linuxbrew/.linuxbrew/etc \
+    /home/linuxbrew/.linuxbrew/include \
+    /home/linuxbrew/.linuxbrew/lib \
+    /home/linuxbrew/.linuxbrew/opt \
+    /home/linuxbrew/.linuxbrew/sbin \
+    /home/linuxbrew/.linuxbrew/share \
+    /home/linuxbrew/.linuxbrew/var/homebrew/linked \
+    /home/linuxbrew/.linuxbrew/Cellar \
+    /home/linuxbrew/.linuxbrew/bin \
+    /home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/ \
+    && ln -s ../Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/
   become: true
   become_user: "{{ developer_username }}"
   when: not stat_home_linuxbrew.stat.exists
+
+- name: check if homebrew core tap exists
+  stat:
+    path: "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"
+  register: stat_home_core_tap
+
+- name: remove homebrew core tap
+  file:
+    path: "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"
+    state: absent
+  when: stat_home_core_tap.stat.exists
+
+- name: ensure homebrew core tap
+  shell: |
+    export DEBIAN_FRONTEND=noninteractive
+    git clone --single-branch --depth 1 https://github.com/Homebrew/homebrew-core /home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core
+  become: true
+  become_user: "{{ developer_username }}"
 
 - name: Configure profiles
   become: true

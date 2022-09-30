@@ -32,7 +32,7 @@
   when: unix_user_traefik.stdout == ""
 
 - name: "Get latest available Traefik release"
-  shell: "echo $(curl -H 'Authorization: {{ github_oauth_token }}' -L --silent https://api.github.com/repos/containous/traefik/releases | jq -r '.[].tag_name' | grep 'v2' | head -1)"
+  shell: "echo $(curl -H 'Authorization: {{ github_oauth_token }}' -L --silent https://api.github.com/repos/containous/traefik/releases | jq -r '.[].tag_name' | grep 'v2' | grep -v '\\-rc[0-9]*' | head -1)"
   register: traefik_version_output
 
 - name: Set fact "traefik_version" to "{{ traefik_version_output.stdout }}"
@@ -84,17 +84,22 @@
     state: link
     force: yes
 
-- name: "Creating /etc/traefik/conf.d/default.toml"
+- name: "Creating /etc/traefik/static/code-server.toml"
   template:
-    src: default.toml.j2
-    dest: /etc/traefik/static/default.toml
+    src: code-server.toml.j2
+    dest: /etc/traefik/static/code-server.toml
     owner: root
     group: root
 
-- name: "Ensure /etc/traefik/conf.d/default.toml symlink"
+- name: "Remove /etc/traefik/conf.d/default.toml symlink"
   file:
     dest: "/etc/traefik/conf.d/default.toml"
-    src: "/etc/traefik/static/default.toml"
+    state: absent
+
+- name: "Ensure /etc/traefik/conf.d/code-server.toml symlink"
+  file:
+    dest: "/etc/traefik/conf.d/code-server.toml"
+    src: "/etc/traefik/static/code-server.toml"
     state: link
     force: yes
 

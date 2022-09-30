@@ -1,26 +1,26 @@
 [http.routers]
-    [http.routers.default]
+    [http.routers.code-server]
     rule = "HostRegexp(`{{ traefik_hostname }}.{{ traefik_domain }}`, `{subdomain:[a-z0-9-_]+}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
-    service = "default"
+    service = "code-server"
     entryPoints = ["default"]
 
 {% if traefik_acme_provider is defined and traefik_acme_provider != "" %}
-    [http.routers.default.tls]
+    [http.routers.code-server.tls]
     certResolver = "default"    
-    [[http.routers.default.tls.domains]]
+    [[http.routers.code-server.tls.domains]]
     main = "*.{{ traefik_hostname }}.{{ traefik_domain }}"
     sans = "{{ traefik_hostname }}.{{ traefik_domain }}"
 {% endif %}
 
 [http.middlewares]
-    [http.middlewares.default.compress]
-    [http.middlewares.default.rateLimit]
+    [http.middlewares.code-server.compress]
+    [http.middlewares.code-server.rateLimit]
       average = 100
       burst = 200
       period = "5s"
 
 [http.services]
-  [http.services.default]
-    [http.services.default.loadBalancer]
-      [[http.services.default.loadBalancer.servers]]
+  [http.services.code-server]
+    [http.services.code-server.loadBalancer]
+      [[http.services.code-server.loadBalancer.servers]]
         url = "http://127.0.0.1:7000"
