@@ -13,6 +13,7 @@
 {% endif %}
 
 [http.middlewares]
+    [http.middlewares.default.compress]
     [http.middlewares.default.rateLimit]
       average = 100
       burst = 200
