@@ -11,4 +11,4 @@ pipelines:
             - pip
           script:
             - pip3 install docker
-            - ANSIBLE_HOST_KEY_CHECKING=False python3 ansible-playbook -i environments/prod playbook.yml
+            - ANSIBLE_HOST_KEY_CHECKING=False python3 ansible-playbook -i environments/default playbook.yml
