@@ -3,6 +3,7 @@
     rule = "HostRegexp(`{{ traefik_hostname }}.{{ traefik_domain }}`, `{subdomain:[a-z0-9-_]+}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
     service = "code-server"
     entryPoints = ["default"]
+    middlewares = ["code-server-cors", "code-server-rateLimit", "code-server-compress"]
 
 {% if traefik_acme_provider is defined and traefik_acme_provider != "" %}
     [http.routers.code-server.tls]
@@ -13,11 +14,19 @@
 {% endif %}
 
 [http.middlewares]
-    [http.middlewares.code-server.compress]
-    [http.middlewares.code-server.rateLimit]
+    [http.middlewares.code-server-compress.compress]
+    [http.middlewares.code-server-rateLimit.rateLimit]
       average = 100
       burst = 200
       period = "5s"
+
+    [http.middlewares.code-server-cors.headers]
+      accessControlAllowCredentials = true
+      accessControlAllowHeaders = ["Origin", "Authorization", "Content-Type"]
+      accessControlAllowMethods = ["PUT","GET","OPTIONS"]
+      accessControlAllowOriginListRegex = "(.*?)"
+      accessControlMaxAge = 100
+      addVaryHeader = true
 
 [http.services]
   [http.services.code-server]

@@ -6,18 +6,18 @@ set -o allexport
 pushd `dirname $0` > /dev/null;DIR=`pwd -P`;popd > /dev/null
 [[ -f "${DIR}/.env" ]] && source "${DIR}/.env"
 
-if [[ ! -z $IP_ADDRESS ]]; then
+if [[ ! -z $ANSIBLE_HOST ]]; then
     ANSIBLE_USER=${ANSIBLE_USER:-root}
-    if [[ $IP_ADDRESS != "localhost" ]] || [[ $IP_ADDRESS != "127.0.0.1" ]]; then
-        IP_ADDRESS=${IP_ADDRESS}
+    if [[ $ANSIBLE_HOST != "localhost" ]] || [[ $ANSIBLE_HOST != "127.0.0.1" ]]; then
+        ANSIBLE_HOST=${ANSIBLE_HOST}
         ANSIBLE_CONNECTION=ssh
     else
-        IP_ADDRESS=localhost
+        ANSIBLE_HOST=localhost
         ANSIBLE_CONNECTION=local
     fi
     envsubst > environments/default/hosts <<CONFIG
 [server]
-${IP_ADDRESS} ansible_connection=${ANSIBLE_CONNECTION} ansible_user=${ANSIBLE_USER}
+${ANSIBLE_HOST} ansible_connection=${ANSIBLE_CONNECTION} ansible_user=${ANSIBLE_USER}
 CONFIG
 fi
 
