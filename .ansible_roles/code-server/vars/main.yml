@@ -13,7 +13,7 @@ code_server_service_dir: "{{ code_server_install_prefix }}/lib/systemd/system"
 code_server_url_prefix: https://github.com/cdr/code-server/releases/download
 
 # code_server_ver without v prefix
-code_server_cleaned_ver: "{{ code_server_ver | regex_replace('^v', '') }}"
+code_server_cleaned_ver: "{{ code_server_ver | regex_replace('^v[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$', '') }}"
 
 # code_server_short_ver removes vscode version
 # 2.1692-vsc1.39.2 -> 2.1692
