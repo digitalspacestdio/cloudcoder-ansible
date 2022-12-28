@@ -69,7 +69,6 @@
 
 - debug:
     var: "{{ code_server_major }}"
-    verbosity: 1
 
 - import_tasks: install-code-server-legacy.yml
   when: code_server_major|int < 3
