@@ -69,7 +69,7 @@
     var: code_server_ver
 
 - set_fact:
-    code_server_cleaned_ver: "{{ code_server_ver | regex_replace('^v[0-9]{1,}.[0-9]{1,}.[0-9]{1,}$', '') }}"
+    code_server_cleaned_ver: "{{ code_server_ver | regex_replace('^v([0-9]{1,}).([0-9]{1,}).([0-9]{1,})$', '\\1.\\2.\\3') }}"
 
 - debug:
     var: code_server_cleaned_ver
