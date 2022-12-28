@@ -1,11 +1,11 @@
 ---
-- name: Test connectivity locally
+- name: "Test connectivity locally (root, port: {{ code_server_user_port }})"
   wait_for:
     port: "{{ code_server_port }}"
     timeout: 10
   when: code_server_user == "root"
 
-- name: Test connectivity locally
+- name: "Test connectivity locally (non root, port: {{ code_server_user_port }})"
   wait_for:
     port: "{{ code_server_user_port }}"
     timeout: 10
