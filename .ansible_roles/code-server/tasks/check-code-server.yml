@@ -53,3 +53,7 @@
   set_fact:
     code_server_ver: "{{ code_server_releases.json[0].tag_name }}"
   when: code_server_ver is undefined
+
+- debug:
+    var: code_server_releases.json[0]
+  when: code_server_ver is undefined

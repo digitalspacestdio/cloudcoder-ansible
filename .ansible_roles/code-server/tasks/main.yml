@@ -68,7 +68,7 @@
   include_tasks: check-code-server.yml
 
 - debug:
-    var: "{{ code_server_major }}"
+    var: code_server_major
 
 - import_tasks: install-code-server-legacy.yml
   when: code_server_major|int < 3
