@@ -70,7 +70,11 @@
 - debug:
     var: code_server_major
 
-- import_tasks: install-code-server-legacy.yml
+#- import_tasks: install-code-server-legacy.yml
+#  when: code_server_major|int < 3
+- name: "Is version supported"
+  ansible.builtin.fail:
+    msg: "Code server version is not supported: {{ code_server_major }}"
   when: code_server_major|int < 3
 
 - import_tasks: install-code-server.yml
