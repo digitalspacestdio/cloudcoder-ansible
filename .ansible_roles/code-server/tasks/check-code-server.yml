@@ -40,20 +40,27 @@
   when: code_server_exists.stat.exists
   changed_when: no
 
-- name: Check latest code-server version
+- name: Check latest code-server version (github_oauth_token not provided)
+  uri:
+    url: https://api.github.com/repos/cdr/code-server/releases
+  register: code_server_releases
+  delegate_to: localhost
+  when: code_server_ver is undefined and github_oauth_token is undefined
+
+- name: Check latest code-server version (github_oauth_token provided)
   uri:
     url: https://api.github.com/repos/cdr/code-server/releases
     headers:
       Authorization: "{{ github_oauth_token }}"
   register: code_server_releases
   delegate_to: localhost
+  when: code_server_ver is undefined and github_oauth_token is defined
+
+- debug:
+    var: code_server_releases.json[0]
   when: code_server_ver is undefined
 
 - name: Set code-server latest version
   set_fact:
     code_server_ver: "{{ code_server_releases.json[0].tag_name }}"
-  when: code_server_ver is undefined
-
-- debug:
-    var: code_server_releases.json[0]
   when: code_server_ver is undefined
