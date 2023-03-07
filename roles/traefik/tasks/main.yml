@@ -1,4 +1,10 @@
 ---
+- name: Display traefik_hostname
+  debug:
+    var: traefik_hostname
+    verbosity: 4
+  when: traefik_hostname is defined
+
 - name: Set fact traefik_hostname {{ inventory_hostname_short }}
   set_fact:
     traefik_hostname: "{{ node_hostname_short }}"
