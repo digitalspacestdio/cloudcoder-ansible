@@ -41,6 +41,10 @@
         - always
 
   roles:
+    - name: debug_info
+      tags:
+        - debug_info
+
     - role: roles/swap
       tags: 
         - system
