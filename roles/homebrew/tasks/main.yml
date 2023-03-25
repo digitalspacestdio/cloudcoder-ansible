@@ -75,17 +75,23 @@
   with_items: ['.zprofile', '.profile']
 
 - name: "Ensure git-ssh"
-  command: "NONINTERACTIVE=1 /home/linuxbrew/.linuxbrew/bin/brew install digitalspacestdio/git-ssh/git-ssh"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install digitalspacestdio/git-ssh/git-ssh"
+  environment:
+    NONINTERACTIVE: 'TRUE'
   become: true
   become_user: "{{ developer_username }}"
 
 - name: "Ensure nvm"
-  command: "NONINTERACTIVE=1 /home/linuxbrew/.linuxbrew/bin/brew install nvm"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install nvm"
+  environment:
+    NONINTERACTIVE: 'TRUE'
   become: true
   become_user: "{{ developer_username }}"
 
 - name: "Ensure nvm path"
   command: "NONINTERACTIVE=1 /home/linuxbrew/.linuxbrew/bin/brew --prefix nvm"
+  environment:
+    NONINTERACTIVE: 'TRUE'
   register: brew_nvm_prefix_output
   become: true
   become_user: "{{ developer_username }}"
