@@ -75,7 +75,7 @@
   with_items: ['.zprofile', '.profile']
 
 - name: "Ensure git-ssh tap"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew tap git-ssh"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew tap digitalspacestdio/git-ssh"
   environment:
     NONINTERACTIVE: 'TRUE'
     HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
