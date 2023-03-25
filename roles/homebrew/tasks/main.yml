@@ -75,7 +75,7 @@
   with_items: ['.zprofile', '.profile']
 
 - name: "Ensure git-ssh"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew install digitalspacestdio/git-ssh/git-ssh; exit 0"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install digitalspacestdio/git-ssh/git-ssh"
   environment:
     NONINTERACTIVE: 'TRUE'
     HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
@@ -84,7 +84,7 @@
   become_user: "{{ developer_username }}"
 
 - name: "Ensure nvm"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew install nvm; exit 0"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install nvm"
   environment:
     NONINTERACTIVE: 'TRUE'
     HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
@@ -128,7 +128,7 @@
   with_items: ['.zprofile', '.profile']
 
 - name: "Ensure go"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew install go; exit 0"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install go"
   environment:
     NONINTERACTIVE: 'TRUE'
     HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
@@ -148,7 +148,7 @@
   become_user: "{{ developer_username }}"
 
 - name: "Ensure jenv"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew install jenv; exit 0"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install jenv"
   environment:
     NONINTERACTIVE: 'TRUE'
     HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
@@ -168,7 +168,7 @@
   become_user: "{{ developer_username }}"
 
 - name: "Ensure {{ item }}"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew install {{ item }}; exit 0"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install {{ item }}"
   environment:
     NONINTERACTIVE: 'TRUE'
     HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
