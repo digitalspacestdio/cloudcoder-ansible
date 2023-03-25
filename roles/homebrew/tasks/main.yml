@@ -75,7 +75,7 @@
   with_items: ['.zprofile', '.profile']
 
 - name: "Ensure git-ssh"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew install digitalspacestdio/git-ssh/git-ssh 2> /dev/null; exit 0"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install digitalspacestdio/git-ssh/git-ssh; exit 0"
   environment:
     NONINTERACTIVE: 'TRUE'
     HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
@@ -84,7 +84,7 @@
   become_user: "{{ developer_username }}"
 
 - name: "Ensure nvm"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew install nvm 2> /dev/null; exit 0"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install nvm; exit 0"
   environment:
     NONINTERACTIVE: 'TRUE'
     HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
@@ -127,9 +127,14 @@
       source "$HOME/.sdkman/bin/sdkman-init.sh"
   with_items: ['.zprofile', '.profile']
 
-- name: "Installing golang"
-  shell: runuser -l {{ developer_username }} -c "brew install go"
+- name: "Ensure go"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install go; exit 0"
+  environment:
+    NONINTERACTIVE: 'TRUE'
+    HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
+    HOMEBREW_NO_AUTO_UPDATE: 'TRUE'
   become: true
+  become_user: "{{ developer_username }}"
     
 - name: "Adding GOPATH to profiles"
   blockinfile:
@@ -142,9 +147,14 @@
   become: true
   become_user: "{{ developer_username }}"
 
-- name: "Installing jenv"
-  shell: runuser -l {{ developer_username }} -c "brew install jenv"
+- name: "Ensure jenv"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install jenv; exit 0"
+  environment:
+    NONINTERACTIVE: 'TRUE'
+    HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
+    HOMEBREW_NO_AUTO_UPDATE: 'TRUE'
   become: true
+  become_user: "{{ developer_username }}"
     
 - name: "Adding jenv to profiles"
   blockinfile:
@@ -157,8 +167,13 @@
   become: true
   become_user: "{{ developer_username }}"
 
-- name: "Installing additional packages"
-  shell: runuser -l {{ developer_username }} -c "brew install {{ item }}"
+- name: "Ensure {{ item }}"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install {{ item }}; exit 0"
+  environment:
+    NONINTERACTIVE: 'TRUE'
+    HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
+    HOMEBREW_NO_AUTO_UPDATE: 'TRUE'
   become: true
+  become_user: "{{ developer_username }}"
   with_items: 
     - hadolint
