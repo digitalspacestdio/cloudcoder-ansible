@@ -47,7 +47,7 @@
 
     - role: roles/swap
       tags: 
-        - system
+        - swap
 
     - role: roles/tools
       tags: 
