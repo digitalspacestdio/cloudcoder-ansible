@@ -71,15 +71,15 @@
   with_items: ['.zprofile', '.profile']
 
 - name: "Ensure git-ssh"
-  command: runuser -l {{ developer_username }} -c "brew install digitalspacestdio/git-ssh/git-ssh"
+  shell: runuser -l {{ developer_username }} -c "brew install digitalspacestdio/git-ssh/git-ssh"
   become: true
 
 - name: "Ensure nvm"
-  command: runuser -l {{ developer_username }} -c "brew install nvm"
+  shell: runuser -l {{ developer_username }} -c "brew install nvm"
   become: true
 
 - name: "Ensure nvm path"
-  command: runuser -l {{ developer_username }} -c "brew --prefix nvm"
+  shell: runuser -l {{ developer_username }} -c "brew --prefix nvm"
   register: brew_nvm_prefix_output
   become: true
 
