@@ -64,24 +64,28 @@
 
 - name: Configure profiles
   become: true
-  lineinfile:
+  blockinfile:
     create: yes
     dest: '{{ developer_user_info.home }}/{{item}}'
-    line: 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+    marker: "# {mark} brew"
+    block: |
+      export HOMEBREW_NO_AUTO_UPDATE=TRUE
+      export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
+      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
   with_items: ['.zprofile', '.profile']
 
 - name: "Ensure git-ssh"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew install digitalspacestdio/git-ssh/git-ssh"
+  command: "NONINTERACTIVE=1 /home/linuxbrew/.linuxbrew/bin/brew install digitalspacestdio/git-ssh/git-ssh"
   become: true
   become_user: "{{ developer_username }}"
 
 - name: "Ensure nvm"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew install nvm"
+  command: "NONINTERACTIVE=1 /home/linuxbrew/.linuxbrew/bin/brew install nvm"
   become: true
   become_user: "{{ developer_username }}"
 
 - name: "Ensure nvm path"
-  command: "/home/linuxbrew/.linuxbrew/bin/brew --prefix nvm"
+  command: "NONINTERACTIVE=1 /home/linuxbrew/.linuxbrew/bin/brew --prefix nvm"
   register: brew_nvm_prefix_output
   become: true
   become_user: "{{ developer_username }}"
