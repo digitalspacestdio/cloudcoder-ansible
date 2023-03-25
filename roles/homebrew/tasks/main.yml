@@ -70,18 +70,21 @@
     line: 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
   with_items: ['.zprofile', '.profile']
 
-# - name: "Ensure git-ssh"
-#   command: runuser -l {{ developer_username }} -c "brew install digitalspacestdio/git-ssh/git-ssh"
-#   become: true
+- name: "Ensure git-ssh"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install digitalspacestdio/git-ssh/git-ssh"
+  become: true
+  become_user: "{{ developer_username }}"
 
 - name: "Ensure nvm"
-  command: runuser -l {{ developer_username }} -c "brew install nvm"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew install nvm"
   become: true
+  become_user: "{{ developer_username }}"
 
 - name: "Ensure nvm path"
-  command: runuser -l {{ developer_username }} -c "brew --prefix nvm"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew --prefix nvm"
   register: brew_nvm_prefix_output
   become: true
+  become_user: "{{ developer_username }}"
 
 - name: "Updating profiles"
   blockinfile:
