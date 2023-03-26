@@ -102,7 +102,7 @@
   become_user: "{{ developer_username }}"
 
 - name: "Ensure nvm path"
-  command: "NONINTERACTIVE=1 /home/linuxbrew/.linuxbrew/bin/brew --prefix nvm"
+  command: "/home/linuxbrew/.linuxbrew/bin/brew --prefix nvm"
   environment:
     NONINTERACTIVE: 'TRUE'
     HOMEBREW_NO_INSTALL_CLEANUP: 'TRUE'
