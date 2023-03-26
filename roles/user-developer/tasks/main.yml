@@ -16,7 +16,7 @@
   when: unix_user_developer.stdout != "" and unix_user_developer.stdout != developer_username
 
 - name: Rename user
-  command: "usermod --login {{ unix_user_developer.stdout }} {{ developer_username }}"
+  command: "usermod --login {{ developer_username }} {{ unix_user_developer.stdout }}"
   when: unix_user_developer.stdout != "" and unix_user_developer.stdout != developer_username
 
 - name: Add the user '{{ developer_username }}' with the {{ developer_uid }} uid and a primary group of 'developer'
