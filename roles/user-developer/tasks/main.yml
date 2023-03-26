@@ -6,18 +6,18 @@
   group:
     name: "developer"
     state: present
-  when: unix_user_developer.stdout != "" && unix_user_developer.stdout != developer_username
+  when: unix_user_developer.stdout != "" and unix_user_developer.stdout != developer_username
 
 - name: Move home directory
   user:
     name: "{{ unix_user_developer.stdout }}"
     home: "/home/{{ developer_username }}"
     move_home: yes
-  when: unix_user_developer.stdout != "" && unix_user_developer.stdout != developer_username
+  when: unix_user_developer.stdout != "" and unix_user_developer.stdout != developer_username
 
 - name: Rename user
   command: "usermod --login {{ unix_user_developer.stdout }} {{ developer_username }}"
-  when: unix_user_developer.stdout != "" && unix_user_developer.stdout != developer_username
+  when: unix_user_developer.stdout != "" and unix_user_developer.stdout != developer_username
 
 - name: Add the user '{{ developer_username }}' with the {{ developer_uid }} uid and a primary group of 'developer'
   user:
