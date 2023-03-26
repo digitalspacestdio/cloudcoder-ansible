@@ -22,6 +22,7 @@ ExecStart={{ code_server_bin_dir }}/code-server
  {%- if code_server_tls_key is defined %} --cert-key {{ code_server_data_dir_abs }}/tls.key{% endif %}
  {%- if code_server_proxy_domain is defined %} --proxy-domain {{ code_server_proxy_domain }}{% endif %}
  {%- if code_server_work_dir is defined %} {{ code_server_work_dir }}{% endif %}
+ {%- if code_server_app_name is defined %} {{ code_server_app_name }}{% endif %}
  --host {{ code_server_host }} --port {{ code_server_user_port }}
 WorkingDirectory=~
 

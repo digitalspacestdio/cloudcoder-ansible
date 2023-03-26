@@ -28,17 +28,30 @@
         - always
 
     - name: Lookup traefik_hostname
-      shell:
-        hostname -s
+      shell: hostname -s
       register: node_hostname_short_output
       tags: 
         - always
 
-    - name: Set fact node_hostname_short
+    - name: "Set fact node_hostname_short = {{ node_hostname_short_output.stdout }}"
       set_fact:
         node_hostname_short: "{{ node_hostname_short_output.stdout }}"
       tags: 
         - always
+    
+    - name: "Set fact entrypoint_hostname = {{ traefik_hostname }}.{{ traefik_domain }}"
+      set_fact:
+        entrypoint_hostname: "{{ traefik_hostname }}.{{ traefik_domain }}"
+      tags: 
+        - always
+      when: traefik_hostname is defined and traefik_hostname != ""
+    
+    - name: "Set fact entrypoint_hostname = {{ node_hostname_short }}.{{ traefik_domain }}"
+      set_fact:
+        entrypoint_hostname: "{{ node_hostname_short }}.{{ traefik_domain }}"
+      tags: 
+        - always
+      when: traefik_hostname is not defined or traefik_hostname == ""
 
   roles:
     - name: debug_info
@@ -85,7 +98,8 @@
       code_server_host: "{{ vscode_bind_address }}"
       code_server_port: "{{ vscode_bind_port }}"
       code_server_password: "{{ vscode_password }}"
-      code_server_proxy_domain: "{{ traefik_hostname | default(node_hostname_short) }}.{{ traefik_domain }}"
+      code_server_proxy_domain: "{{ entrypoint_hostname }}"
+      code_server_app_name: "{{ node_hostname_short }}"
       code_server_env:
         VSCODE_FORCE_USER_ENV: "1"
         SHELL: /usr/bin/zsh
