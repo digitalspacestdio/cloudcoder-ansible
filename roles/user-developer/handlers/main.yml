@@ -1,0 +1,13 @@
+---
+- name: Restart user tmux service
+  become: true
+  become_user: "{{ developer_username }}"
+  systemd:
+    daemon-reload: yes
+    name: tmux
+    state: restarted
+    scope: user
+    # We mark the service as Type=notify to auto restart it routinely,
+    # but it's actually Type=simple, so "no_block: yes" here to avoid stuck.
+    no_block: yes
+  when: developer_username is defined and developer_username != ""
