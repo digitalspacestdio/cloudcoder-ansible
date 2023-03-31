@@ -82,6 +82,15 @@
     state: present
   become: true
 
+- name: "Ensure 'set -g mouse on' in .tmux.conf"
+  become: true
+  become_user: "{{ developer_username }}"
+  lineinfile:
+    dest: "{{ developer_user_info.home }}/.tmux.conf"
+    state: present
+    regexp: 'set -g mouse'
+    line: 'set -g mouse on'
+
 - name: Copy tmux systemd unit file (rootless)
   become: true
   become_user: "{{ developer_username }}"
