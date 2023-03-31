@@ -1,6 +1,6 @@
 [http.routers]
     [http.routers.code-server]
-    rule = "HostRegexp(`{{ traefik_hostname }}.{{ traefik_domain }}`, `{subdomain:[a-z0-9-_]+}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
+    rule = "HostRegexp(`{{ traefik_hostname }}.{{ traefik_domain }}`, `{subdomain:[1-9][0-9][0-9]+}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
     service = "code-server"
     entryPoints = ["default"]
     middlewares = ["code-server-cors", "code-server-rateLimit", "code-server-proxy-domain", "code-server-compress"]
