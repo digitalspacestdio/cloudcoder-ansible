@@ -108,4 +108,4 @@
     dest: "{{ developer_user_info.home }}/.config/systemd/user/tmux.service"
     backup: 'yes'
     mode: 0600
-  notify: Restart user tmux service
+#  notify: Restart user tmux service
