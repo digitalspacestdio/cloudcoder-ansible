@@ -96,7 +96,7 @@
   become: true
   become_user: "{{ developer_username }}"
   ansible.builtin.file:
-    path: "{{ code_server_user_info.home }}/.config/systemd/user"
+    path: "{{ developer_user_info.home }}/.config/systemd/user"
     state: directory
     mode: "0700"
 
