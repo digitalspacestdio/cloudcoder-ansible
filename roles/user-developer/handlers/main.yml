@@ -4,7 +4,7 @@
   become_user: "{{ developer_username }}"
   systemd:
     daemon-reload: yes
-    name: tmux
+    name: tmux.service
     state: restarted
     scope: user
     # We mark the service as Type=notify to auto restart it routinely,
