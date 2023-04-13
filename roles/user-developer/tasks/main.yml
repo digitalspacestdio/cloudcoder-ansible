@@ -92,6 +92,14 @@
     regexp: 'set -g mouse'
     line: 'set -g mouse on'
 
+- name: Create "{{ developer_username }}" systemd config dir
+  become: true
+  become_user: "{{ developer_username }}"
+  ansible.builtin.file:
+    path: "{{ code_server_user_info.home }}/.config/systemd/user"
+    state: directory
+    mode: "0700"
+
 - name: Copy tmux systemd unit file (rootless)
   become: true
   become_user: "{{ developer_username }}"
