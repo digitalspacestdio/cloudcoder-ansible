@@ -86,6 +86,7 @@
   become: true
   become_user: "{{ developer_username }}"
   lineinfile:
+    create: yes
     dest: "{{ developer_user_info.home }}/.tmux.conf"
     state: present
     regexp: 'set -g mouse'
