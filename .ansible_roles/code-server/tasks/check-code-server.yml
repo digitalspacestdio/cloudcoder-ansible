@@ -57,7 +57,7 @@
 #   when: code_server_ver is undefined and github_oauth_token is defined
 
 - name: "Get latest stable code-server release"
-  shell: "curl -H 'Authorization: {{ github_oauth_token }}' -L --silent | jq -r '.[].tag_name' | grep -v '\\-rc[0-9]*' | head -1"
+  shell: "curl -H 'Authorization: {{ github_oauth_token }}' -L --silent https://api.github.com/repos/cdr/code-server/releases | jq -r '.[].tag_name' | grep -v '\\-rc[0-9]*' | head -1"
   register: code_server_ver_output
   when: code_server_ver is undefined
 
