@@ -62,12 +62,12 @@
   when: code_server_ver is undefined
 
 - debug:
-    var: code_server_ver_output.output
+    var: code_server_ver_output.stdout
   when: code_server_ver is undefined
 
 - name: Set code-server latest version
   set_fact:
-    code_server_ver: "{{ code_server_ver_output.output }}"
+    code_server_ver: "{{ code_server_ver_output.stdout }}"
   when: code_server_ver is undefined
 
 - debug:
