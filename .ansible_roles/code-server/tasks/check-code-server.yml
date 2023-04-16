@@ -40,24 +40,24 @@
   when: code_server_exists.stat.exists
   changed_when: no
 
-- name: Check latest code-server version (github_oauth_token not provided)
-  uri:
-    url: https://api.github.com/repos/cdr/code-server/releases
-  register: code_server_releases
-  delegate_to: localhost
-  when: code_server_ver is undefined and github_oauth_token is undefined
+# - name: Check latest code-server version (github_oauth_token not provided)
+#   uri:
+#     url: https://api.github.com/repos/cdr/code-server/releases
+#   register: code_server_releases
+#   delegate_to: localhost
+#   when: code_server_ver is undefined and github_oauth_token is undefined
 
-- name: Check latest code-server version (github_oauth_token provided)
-  uri:
-    url: https://api.github.com/repos/cdr/code-server/releases
-    headers:
-      Authorization: github_oauth_token
-  register: code_server_releases
-  delegate_to: localhost
-  when: code_server_ver is undefined and github_oauth_token is defined
+# - name: Check latest code-server version (github_oauth_token provided)
+#   uri:
+#     url: https://api.github.com/repos/cdr/code-server/releases
+#     headers:
+#       Authorization: github_oauth_token
+#   register: code_server_releases
+#   delegate_to: localhost
+#   when: code_server_ver is undefined and github_oauth_token is defined
 
 - name: "Get latest stable code-server release"
-  shell: echo "{{ code_server_releases }}" | jq -r '.[].tag_name' | grep -v '\\-rc[0-9]*' | head -1
+  shell: "curl -H 'Authorization: {{ github_oauth_token }}' -L --silent | jq -r '.[].tag_name' | grep -v '\\-rc[0-9]*' | head -1"
   register: code_server_ver_output
   when: code_server_ver is undefined
 
