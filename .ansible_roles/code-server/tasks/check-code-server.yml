@@ -57,7 +57,7 @@
   when: code_server_ver is undefined and github_oauth_token is defined
 
 - name: "Get latest stable code-server release"
-  shell: "echo '{{ code_server_releases }}' | jq -r '.[].tag_name' | grep -v '\\-rc[0-9]*' | head -1"
+  shell: echo "{{ code_server_releases }}" | jq -r '.[].tag_name' | grep -v '\\-rc[0-9]*' | head -1
   register: code_server_ver_output
   when: code_server_ver is undefined
 
