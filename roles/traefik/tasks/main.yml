@@ -109,6 +109,17 @@
     state: link
     force: yes
 
+- name: Crypt public auth password
+  shell:
+    openssl passwd -apr1 '{{ traefik_public_port_password }}'
+  register: openssl_result
+  when: traefik_public_port is defined and traefik_public_port != ""
+
+- name: Register hashed password
+  set_fact:
+    traefik_public_port_password_hash: "{{ openssl_result.stdout }}"
+  when: traefik_public_port is defined and traefik_public_port != ""
+
 - name: "Creating /etc/traefik/static/public_{{ traefik_public_port }}.toml"
   template:
     src: public.toml.j2

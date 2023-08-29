@@ -32,7 +32,7 @@
 {% if traefik_public_port_username is defined and traefik_public_port_username != "" and traefik_public_port_password is defined and traefik_public_port_password != "" %}
     [http.middlewares.public_{{ traefik_public_port }}-auth.basicAuth]
     users = [
-    "{{ traefik_public_port_username }}:{{ traefik_public_port_password | sha1 }}",
+    "{{ traefik_public_port_username }}:{{ traefik_public_port_password_hash }}",
     ]
 {% endif %}
 
