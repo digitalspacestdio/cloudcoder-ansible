@@ -4,7 +4,13 @@
     rule = "Host(`{{ traefik_public_port }}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
     service = "public_{{ traefik_public_port }}"
     entryPoints = ["default"]
-    middlewares = ["public_{{ traefik_public_port }}-cors", "public_{{ traefik_public_port }}-compress"]
+    middlewares = [
+      "public_{{ traefik_public_port }}-cors",
+      "public_{{ traefik_public_port }}-compress",
+      {% if traefik_public_port_username is defined and traefik_public_port_username != "" and traefik_public_port_password is defined and traefik_public_port_password != "" %}
+      "public_{{ traefik_public_port }}-auth",
+      {% endif %}
+    ]
 
 {% if traefik_acme_provider is defined and traefik_acme_provider != "" %}
     [http.routers.public_{{ traefik_public_port }}.tls]
@@ -23,6 +29,12 @@
       accessControlAllowOriginListRegex = "(.*?)"
       accessControlMaxAge = 100
       addVaryHeader = true
+    {% if traefik_public_port_username is defined and traefik_public_port_username != "" and traefik_public_port_password is defined and traefik_public_port_password != "" %}
+    [http.middlewares.public_{{ traefik_public_port }}-auth.basicAuth]
+    users = [
+    "{{ traefik_public_port_username }}:{{ traefik_public_port_password | sha1 }}",
+    ]
+    {% endif %}
 
 [http.services]
   [http.services.public_{{ traefik_public_port }}]

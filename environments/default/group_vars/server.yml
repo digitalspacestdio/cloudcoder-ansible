@@ -6,6 +6,8 @@ developer_authorized_keys: []
 traefik_hostname: "{{ lookup('env', 'TRAEFIK_HOSTNAME') | default('', True) }}"
 traefik_domain: "{{ lookup('env', 'TRAEFIK_DOMAIN') | default('example.com', True) }}"
 traefik_public_port: "{{ lookup('env', 'TRAEFIK_PUBLIC_PORT') | default('', True) }}"
+traefik_public_port_username: "{{ lookup('env', 'TRAEFIK_PUBLIC_PORT_USERNAME') | default('', True) }}"
+traefik_public_port_password: "{{ lookup('env', 'TRAEFIK_PUBLIC_PORT_PASSWORD') | default('', True) }}"
 traefik_acme_provider: "{{ lookup('env', 'TRAEFIK_ACME_PROVIDER') | default('', True) }}"
 traefik_acme_email: "{{ lookup('env', 'TRAEFIK_ACME_EMAIL') | default('adm@example.com', True) }}"
 traefik_acme_token: "{{ lookup('env', 'TRAEFIK_ACME_TOKEN') }}"
