@@ -1,7 +1,7 @@
 [http.routers]
     [http.routers.public_{{ traefik_public_port }}]
     priority = 900
-    rule = "HostRegexp(`{subdomain:{{ traefik_public_port }}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
+    rule = "Host(`{{ traefik_public_port }}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
     service = "public_{{ traefik_public_port }}"
     entryPoints = ["default"]
     middlewares = ["public_{{ traefik_public_port }}-cors", "public_{{ traefik_public_port }}-rateLimit", "public_{{ traefik_public_port }}-proxy-domain", "public_{{ traefik_public_port }}-compress"]
