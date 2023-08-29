@@ -1,28 +1,28 @@
 [http.routers]
-    [http.routers.public_{{ traefik_public_port }}]
+    [http.routers.public_{{ item }}]
     priority = 900
-    rule = "Host(`{{ traefik_public_port }}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
-    service = "public_{{ traefik_public_port }}"
+    rule = "Host(`{{ item }}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
+    service = "public_{{ item }}"
     entryPoints = ["default"]
     middlewares = [
-      "public_{{ traefik_public_port }}-cors",
-      "public_{{ traefik_public_port }}-compress",
+      "public_{{ item }}-cors",
+      "public_{{ item }}-compress",
 {% if traefik_public_port_username is defined and traefik_public_port_username != "" and traefik_public_port_password is defined and traefik_public_port_password != "" %}
-      "public_{{ traefik_public_port }}-auth",
+      "public_{{ item }}-auth",
 {% endif %}
     ]
 
 {% if traefik_acme_provider is defined and traefik_acme_provider != "" %}
-    [http.routers.public_{{ traefik_public_port }}.tls]
+    [http.routers.public_{{ item }}.tls]
     certResolver = "default"    
-    [[http.routers.public_{{ traefik_public_port }}.tls.domains]]
+    [[http.routers.public_{{ item }}.tls.domains]]
     main = "*.{{ traefik_hostname }}.{{ traefik_domain }}"
     sans = "{{ traefik_hostname }}.{{ traefik_domain }}"
 {% endif %}
 
 [http.middlewares]
-    [http.middlewares.public_{{ traefik_public_port }}-compress.compress]
-    [http.middlewares.public_{{ traefik_public_port }}-cors.headers]
+    [http.middlewares.public_{{ item }}-compress.compress]
+    [http.middlewares.public_{{ item }}-cors.headers]
       accessControlAllowCredentials = true
       accessControlAllowHeaders = ["Origin", "Authorization", "Content-Type"]
       accessControlAllowMethods = ["PUT","GET","OPTIONS"]
@@ -30,14 +30,14 @@
       accessControlMaxAge = 100
       addVaryHeader = true
 {% if traefik_public_port_username is defined and traefik_public_port_username != "" and traefik_public_port_password is defined and traefik_public_port_password != "" %}
-    [http.middlewares.public_{{ traefik_public_port }}-auth.basicAuth]
+    [http.middlewares.public_{{ item }}-auth.basicAuth]
     users = [
     "{{ traefik_public_port_username }}:{{ traefik_public_port_password_hash }}",
     ]
 {% endif %}
 
 [http.services]
-  [http.services.public_{{ traefik_public_port }}]
-    [http.services.public_{{ traefik_public_port }}.loadBalancer]
-      [[http.services.public_{{ traefik_public_port }}.loadBalancer.servers]]
-        url = "http://127.0.0.1:{{ traefik_public_port }}"
+  [http.services.public_{{ item }}]
+    [http.services.public_{{ item }}.loadBalancer]
+      [[http.services.public_{{ item }}.loadBalancer.servers]]
+        url = "http://127.0.0.1:{{ item }}"

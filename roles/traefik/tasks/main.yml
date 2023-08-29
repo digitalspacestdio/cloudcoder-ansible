@@ -120,26 +120,29 @@
     traefik_public_port_password_hash: "{{ openssl_result.stdout }}"
   when: traefik_public_port is defined and traefik_public_port != ""
 
-- name: "Creating /etc/traefik/static/public_{{ traefik_public_port }}.toml"
+- name: "Creating /etc/traefik/static/public_%port%.toml"
   template:
     src: public.toml.j2
-    dest: /etc/traefik/static/public_{{ traefik_public_port }}.toml
+    dest: /etc/traefik/static/public_{{ item }}.toml
     owner: root
     group: root
+  with_items: "{{ traefik_public_port.split(',') }}"
   when: traefik_public_port is defined and traefik_public_port != ""
 
-- name: "Remove /etc/traefik/conf.d/public.toml symlink"
+- name: "Remove /etc/traefik/conf.d/public_%port%.toml symlink"
   file:
-    dest: "/etc/traefik/conf.d/public.toml"
+    dest: "/etc/traefik/conf.d/public_{{ item }}.toml"
     state: absent
+  with_items: "{{ traefik_public_port.split(',') }}"
   when: traefik_public_port is defined and traefik_public_port != ""
 
-- name: "Ensure /etc/traefik/conf.d/public.toml symlink"
+- name: "Ensure /etc/traefik/conf.d/public_%port%.toml symlink"
   file:
-    dest: "/etc/traefik/conf.d/public.toml"
-    src: "/etc/traefik/static/public_{{ traefik_public_port }}.toml"
+    dest: "/etc/traefik/conf.d/public_{{ item }}.toml"
+    src: "/etc/traefik/static/public_{{ item }}.toml"
     state: link
     force: yes
+  with_items: "{{ traefik_public_port.split(',') }}"
   when: traefik_public_port is defined and traefik_public_port != ""
 
 - name: "Creating /etc/traefik/traefik.toml"
