@@ -109,6 +109,28 @@
     state: link
     force: yes
 
+- name: "Creating /etc/traefik/static/public_{{ traefik_public_port }}.toml"
+  template:
+    src: public.toml.j2
+    dest: /etc/traefik/static/public_{{ traefik_public_port }}.toml
+    owner: root
+    group: root
+  when: traefik_public_port is defined and traefik_public_port != ""
+
+- name: "Remove /etc/traefik/conf.d/public.toml symlink"
+  file:
+    dest: "/etc/traefik/conf.d/public.toml"
+    state: absent
+  when: traefik_public_port is defined and traefik_public_port != ""
+
+- name: "Ensure /etc/traefik/conf.d/public.toml symlink"
+  file:
+    dest: "/etc/traefik/conf.d/public.toml"
+    src: "/etc/traefik/static/public_{{ traefik_public_port }}.toml"
+    state: link
+    force: yes
+  when: traefik_public_port is defined and traefik_public_port != ""
+
 - name: "Creating /etc/traefik/traefik.toml"
   template:
     src: traefik.toml.j2
