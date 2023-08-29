@@ -1,0 +1,17 @@
+---
+- name: Installing zram-config
+  apt: 
+    pkg: zram-config
+    state: present
+  register: installation
+  become: true
+
+- name: "Enable zram-config service"
+  systemd:
+    name: zram-config
+    state: started
+    daemon_reload: yes
+    enabled: yes
+  become: true
+
+  
