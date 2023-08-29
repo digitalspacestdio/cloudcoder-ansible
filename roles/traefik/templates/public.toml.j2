@@ -4,7 +4,7 @@
     rule = "Host(`{{ traefik_public_port }}.{{ traefik_hostname }}.{{ traefik_domain }}`)"
     service = "public_{{ traefik_public_port }}"
     entryPoints = ["default"]
-    middlewares = ["public_{{ traefik_public_port }}-cors", "public_{{ traefik_public_port }}-rateLimit", "public_{{ traefik_public_port }}-proxy-domain", "public_{{ traefik_public_port }}-compress"]
+    middlewares = ["public_{{ traefik_public_port }}-cors", "public_{{ traefik_public_port }}-compress"]
 
 {% if traefik_acme_provider is defined and traefik_acme_provider != "" %}
     [http.routers.public_{{ traefik_public_port }}.tls]
