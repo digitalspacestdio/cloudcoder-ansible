@@ -113,12 +113,12 @@
   shell:
     openssl passwd -apr1 '{{ traefik_public_port_password }}'
   register: openssl_result
-  when: traefik_public_port is defined and traefik_public_port != ""
+  when: traefik_public_port is defined and traefik_public_port != "" and traefik_public_port_password_hash == ""
 
 - name: Register hashed password
   set_fact:
     traefik_public_port_password_hash: "{{ openssl_result.stdout }}"
-  when: traefik_public_port is defined and traefik_public_port != ""
+  when: traefik_public_port is defined and traefik_public_port != "" and traefik_public_port_password_hash == ""
 
 - name: "Creating /etc/traefik/static/public_%port%.toml"
   template:
