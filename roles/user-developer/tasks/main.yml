@@ -42,11 +42,19 @@
   set_fact:
     developer_username: "{{ developer_user_info.name }}"
 
-- name: Change user password
+- name: Change user password (plain)
   user:
     name: '{{ developer_username }}'
     update_password: always
     password: "{{ developer_password | password_hash('sha512') }}"
+  when: developer_password != "" and developer_password_hash == ""
+
+- name: Change user password (hash)
+  user:
+    name: '{{ developer_username }}'
+    update_password: always
+    password: "{{ developer_password_hash }}"
+  when: developer_password_hash != ""
 
 - name: Allow root password login via ssh
   replace:

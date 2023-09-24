@@ -1,6 +1,7 @@
 developer_username: "{{ lookup('env', 'USER_DEVELOPER_USERNAME') | default('developer', True) }}"
 developer_uid: "{{ lookup('env', 'USER_DEVELOPER_UID') | default('1000', True) }}"
 developer_password: "{{ lookup('env', 'USER_DEVELOPER_PASSWORD') | default('', True) }}"
+developer_password_hash: "{{ lookup('env', 'USER_DEVELOPER_PASSWORD_HASH') | default('', True) }}"
 developer_github_accounts: []
 developer_authorized_keys: []
 traefik_hostname: "{{ lookup('env', 'TRAEFIK_HOSTNAME') | default('', True) }}"
@@ -8,6 +9,7 @@ traefik_domain: "{{ lookup('env', 'TRAEFIK_DOMAIN') | default('example.com', Tru
 traefik_public_port: "{{ lookup('env', 'TRAEFIK_PUBLIC_PORT') | default('', True) }}"
 traefik_public_port_username: "{{ lookup('env', 'TRAEFIK_PUBLIC_PORT_USERNAME') | default('', True) }}"
 traefik_public_port_password: "{{ lookup('env', 'TRAEFIK_PUBLIC_PORT_PASSWORD') | default('', True) }}"
+traefik_public_port_password_hash: "{{ lookup('env', 'TRAEFIK_PUBLIC_PORT_PASSWORD_HASH') | default('', True) }}"
 traefik_acme_provider: "{{ lookup('env', 'TRAEFIK_ACME_PROVIDER') | default('', True) }}"
 traefik_acme_email: "{{ lookup('env', 'TRAEFIK_ACME_EMAIL') | default('adm@example.com', True) }}"
 traefik_acme_token: "{{ lookup('env', 'TRAEFIK_ACME_TOKEN') }}"
@@ -16,4 +18,5 @@ traefik_log_level: "{{ lookup('env', 'TRAEFIK_LOG_LEVEL') | default('WARNING', T
 vscode_bind_address: "{{ lookup('env', 'VSCODE_BIND_ADDRESS') | default('127.0.0.1', True) }}"
 vscode_bind_port: "{{ lookup('env', 'VSCODE_BIND_PORT') | default('7999', True) }}"
 vscode_password: "{{ lookup('env', 'VSCODE_POSSWORD') | default('$ecretPassw0rd', True) }}"
+vscode_password_hash: "{{ lookup('env', 'VSCODE_POSSWORD_HASH') | default('', True) }}"
 github_oauth_token: "{{ lookup('env', 'GITHUB_OAUTH_TOKEN') | default('', True) }}"

@@ -1,5 +1,8 @@
-{% if code_server_password is defined %}
-PASSWORD={{ code_server_password | quote }}
+{% if code_server_password is defined and code_server_password != "" %}
+HASHED_PASSWORD={{ code_server_password | password_hash('sha256') | quote }}
+{% endif %}
+{% if code_server_password_hash is defined and code_server_password_hash != "" %}
+HASHED_PASSWORD={{ code_server_password_hash | quote }}
 {% endif %}
 {% for env in code_server_env %}
 {{ env }}={{ code_server_env[env] | quote }}

@@ -6,7 +6,7 @@ Documentation=https://github.com/cdr/code-server
 Type=simple
 Restart=on-failure
 RestartSec=3
-{% if code_server_password is defined %}
+{% if code_server_password is defined or code_server_password_hash is defined or code_server_env|length > 0 %}
 EnvironmentFile={{ code_server_data_dir_abs }}/env
 {% endif %}
 {% if code_server_no_privilege_escalation is defined and code_server_no_privilege_escalation %}
