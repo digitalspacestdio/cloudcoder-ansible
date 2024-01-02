@@ -12,7 +12,7 @@
     mode: 0600
     owner:  "{{ code_server_user }}"
   notify: Restart code-server
-  when: code_server_password is defined or code_server_password_hash is defined or (code_server_env|length > 0)
+  when: code_server_password is defined or code_server_password_hash is defined or code_server_env is defined and (code_server_env|length > 0)
 
 - block:
   - import_tasks: copy-certs.yml
