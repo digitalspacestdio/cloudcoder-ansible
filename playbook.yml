@@ -101,8 +101,8 @@
       code_server_user: "{{ developer_username }}"
       code_server_host: "{{ vscode_bind_address }}"
       code_server_port: "{{ vscode_bind_port }}"
-      code_server_password: "{{ vscode_password }}"
-      code_server_password_hash: "{{ vscode_password_hash }}"
+      code_server_password: "{{ vscode_password | default('', True) }}"
+      code_server_password_hash: "{{ vscode_password_hash | default('', True) }}"
       code_server_proxy_domain: "{{ entrypoint_hostname }}"
       code_server_app_name: "{{ node_hostname_short }}"
       code_server_env:
